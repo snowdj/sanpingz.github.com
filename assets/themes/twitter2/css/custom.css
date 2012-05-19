@@ -142,7 +142,7 @@ h3 {margin:0px 0 10px 0}
 
 /* SPLASH PAGES ================================================= */
 .page_icon div {
-  height:100px;
+  #height:100px;
   padding:10px;
 }
 .page_icon h4 {
@@ -183,4 +183,8 @@ h3 {margin:0px 0 10px 0}
 }
 .description h4 {
   margin-bottom:10px
+}
+.thumbnail p {
+  font-size: 13px;
+  line-height: 22px;
 }
