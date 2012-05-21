@@ -408,4 +408,263 @@ public class Test{
 
 ##第6章 访问权限控制
 
+控制对成员的访问权有两个原因：
+
+- 为了使用户不要去触碰那些他们不该接触的部分，这些部分对原类进行内部操作是必要的，但是它并不属于客户端程序所需接口的一部分。
+- 是为了让类库设计者可以更改类的内部工作方式，而不必担心这样会对客户端程序产生重大的影响，这也是主要的原因。访问控制权限可以确保不会有任何客户端程序依赖于某个类的底层实现。
+
+访问权限控制的等级从高到低以依次为：public、protected、包访问权限（没有关键字）和private。
+
+<table width="100%" align="center" border="1">
+     <tr><td></td><td>同一个类</td><td>同一个包</td><td>不同包的子类</td><td>不同包的非子类</td></tr>
+     <tr><td>private</td><td>√</td><td></td><td></td><td></td></tr>
+     <tr><td>default</td><td>√</td><td>√</td><td></td><td></td></tr>
+     <tr><td>protected</td><td>√</td><td>√</td><td>√</td><td></td></tr>
+     <tr><td>public</td><td>√</td><td>√</td><td>√</td><td>√</td></tr>
+</table>
+
+java的包提供了一个命名空间的机制，不同类中相同的方法（参数也相同）不会冲突，因为有类名的限制，但是相同的类名只能通过包来加以区别。组织包用package关键字，如果不使用，就会有一个默认包（当前目录），即一个未命名包（按照惯例，包名的第一部分为类创建者的反顺序的域名，第二部分为类的文件组织目录）。一个java源代码文件称为一个编译单元，每个编译单元只能有一个（可以没有）public类，而且类名必须与文件名相同。如果编译单元中还有其他的类的话，那么在包外是不可见的，就是包访问权限级别，而且他们主要是用来为主public类提供支持的。
+
+java解释器的运行过程：
+
+1. 找出环境变量CLASSPATH用作查找.class文件的根目录。
+2. 从根目录开始解释器获取包的名称，并把每个句点替换成反斜杠，以产从CLASSPATH根中产生一个路径名称。
+3. 得到的路径名称会与CLASSPATH中的不同项连接，解释器就在这些目录中查找相关的.class文件。
+{% highlight java linenos %}
+//这是一个使用private访问权的例子
+class Sundae{
+     //单例模式
+     //不能被继承，始终只能创建它的一个对象
+     private Sundae(){}
+     private static Sundae sun=new Sundae();
+     public static Sundae makeSundae(){
+          return sun;
+     }
+}
+
+public class IceCream{
+     public static void main(String[] args){
+          //!Sundae sun=new Sundae();
+          Sundae sun=Sundae.makeSundae();
+     }
+}
+{% endhighlight %}
+
+访问权限的控制常常被称作是**具体实现的隐藏**。把数据和方法包装进类中，以及具体实现的隐藏，一起被称为**封装**。
+
+将接口和实现分开的好处是，客户端程序员除了向接口发送消息外什么也不能做，而随意的修改不是public的东西也不会破坏客户端的代码。
+
+类的访问权限的一些限制：
+
+- 每个编译单元只能有一个public类
+- public类的名称必须完全与文件名相同，包括大小写
+- 编译单元可以没有public类，这样也就没有了类名与文件名相同的限制，但是只有包访问权限
+
+##第7章 复用类
+
+类复用的三种方式：**组合**、**继承**和**代理**。
+
+类中的域（属性）都是以组合方式实现了复用，编译器默认将基本类型初始化为零，对象则初始化为null，如果需要自己初始化，可以在以下位置进行：
+
+- 在类定义的地方，先于构造器初始化。
+- 构造其中。
+- 使用对象之前（惰性初始化）。
+- 使用实例初始化。
+
+创建一个类时，总是在继承，除非明确指明基类，否则隐式的继承java的单一根类Object。继承使用`extends`关键字，继承时会自动得到父类的所有域和方法。
+
+java会在子类的构造器中自动插入（靠前插入）默认构造器（无参）父类的构造器，父类的构造器优先调用，而且总会调用，带参数的构造器需要使用`super`关键字显示调用。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+class Art{
+     Art(){
+          println("Art constructor");
+     }
+     Art(String name){
+          println("Art constructor : "+name);
+     }
+}
+class Drawing extends Art{
+     Drawing(){
+          println("Drawing constructor");
+     }
+     Drawing(String name){
+          super(name);
+     }
+     protected String name="Spam";
+}
+public class Cartoon extends Drawing{
+     Cartoon(){
+          println("Cartoon constructor");
+     }
+     Cartoon(String name){
+          super(name);
+     }
+     public static void main(String[] args){
+          Cartoon ct=new Cartoon();
+          Cartoon ctn=new Cartoon("Spam");
+          println(ctn.name);
+     }
+}
+
+//out:
+//Art constructor
+//Drawing constructor
+//Cartoon constructor
+//Art constructor : Spam
+//Spam
+{% endhighlight %}
+
+java默认并没有对代理提供支持，这是继承和组合之间的中庸之道。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+class Controls{
+     void up(int velocity) { println("up: "+velocity); }
+     void down(int velocity) { println("down: "+velocity); }
+     void left(int velocity) { println("left: "+velocity); }
+     void right(int velocity) { println("right: "+velocity); }
+}
+class SpaceShip extends Controls{
+     private String name;
+     public SpaceShip(String name) { this.name=name; }
+     public String toString(){ return name; }
+     public static void main(String[] args){
+          SpaceShip protector=new SpaceShip("NSEA Protector");
+          protector.up(100);
+     }
+}
+public class Detergent{
+     private String name;
+     private Controls controls=new Controls();
+     public Detergent(String name) { this.name=name; }
+     public void up(int velocity) { controls.up(velocity); }
+     public void down(int velocity) { controls.down(velocity); }
+     public void left(int velocity) { controls.left(velocity); }
+     public void right(int velocity) { controls.right(velocity); }
+     public static void main(String[] args){
+          Detergent protector=new Detergent("NSEA Protector");
+          protector.up(100);
+     }
+}
+{% endhighlight %}
+
+上例中用代理实现了与继承同样的接口，但是使用代理可以拥有更多的控制力，我们可以只提供对象成员方法的一个子集。一些情况下我们也会结合的使用继承和组合。继承中有时会遇到自己清理垃圾的情况，这时候需要注意调用的顺序，往往是先调用自己的清理方法，再调用父类的清理方法，就如同C++中的析构函数，经常需要放在`finally{}`中，而不是`finalize()`中。重载在继承中任然有效。使用`@Override`注解可以防止在复写时以外的进行了重载的情况（不能通过编译）。
+
+###组合与继承之间的选择
+
+组合与继承都允许在新的类中放置子对象，只不过一个是显示，一个是隐式。
+
+- 组合常用于想在新类中使用现有类的功能，而非它的接口这种情况。嵌入一个现有类的private对象，新类中使用了现有类的功能，但是新类的用户看到的只是新类所定义的接口，而非嵌入类的接口。有时隐藏成员对象自身的具体实现，而将成员对象声明为public是安全的，而且有时具有特别的意义，比如：
+ {% highlight java linenos %}
+class Engine{
+     public void start(){}
+     public void rev(){}
+     public void stop(){}
+}
+class Wheel{
+     public void inflate(int psi){}
+}
+class Window{
+     public void rollup(){}
+     public void rolldown(){}
+}
+class Door{
+     public Window window=new Window();
+     public void open(){}
+     public void close(){}
+}
+public class Car{
+     public Engine engine=new Engine();
+     public Window[] window=new Window[4];
+     public Door
+          left=new Door(),
+          right=new Door();
+     public Car(){
+          for(int i=0; i<4; i++)
+               wheel[i]=new Wheel();
+     }
+     public static void main(String[] args){
+          car car=new Car();
+          car.left.window.rollup();
+          car.wheel[0].inflate(72);
+     }
+}
+{% endhighlight %}
+
+- 使用继承的时候通常意味着你是使用一个通用类，并为了某种需要而需要将其特殊化，是一个从一般到特殊化的过程。
+
+使用组合还是转型最清晰的判断方法是**是否需要从新类向基类进行向上转型**。
+
+###向上转型
+
+“为新类提供方法”并不是继承技术中最重要的方面，其最重要的方面是用来表现新类和基类之间的关系，即**新类是现有类的一种类型**。继承可以保证父类中的所有方法在子类中也有效，所以能够向基类发出的消息同样也可以向子类发送，由于向上转型是专用类向通用类转型，所以是安全的，向上转型是多态性的基础。
+ {% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+class Language{
+     void lPrint(){}
+}
+class Java extends Language{
+     void lPrint(){
+          println("System.out.println(\"Hello World!\")");
+     }
+}
+class Python extends Language{
+     void lPrint(){
+          println("print(\"Hello World!\")");
+     }
+}
+public class Upcast{
+     public static void lPrint(Language lg){
+          lg.lPrint();
+     }
+     public static void main(String[] args){
+          Java java=new Java();
+          Python python=new Python();
+          lPrint(java);
+          lPrint(python);
+     }
+}
+//out:
+//System.out.println("Hello World!")
+//print("Hello World!")
+{% endhighlight %}
+
+###final关键字
+
+`final`通常指的是无法改变，使用final的三种情况：数据、方法和类，通常是出于**设计**和**效率**的考虑。一个既是static有是final的域是一段不能改变的存储空间（一般用大写表示，即编译期常量），对于基本数据类型，final意味着数值恒定不变（定义时必须赋值），对于对象，意味着引用恒定不变（对象本身是可以修改的）。java允许**空白final**的存在，即声明为final但未给初值的域，但是编译器要确保空白final在使用前被初始化。这样空白final可以用在需要根据对象不同而有所不同，却又保持恒定不变的特征。
+ {% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+
+public final class Empty{
+     private static final float PI=3.14f;
+     private final float r;
+     public Empty(){
+          r=1f;
+     }
+     public Empty(final float r){
+          this.r=r;
+     }
+     public void area(){
+          println("This area is "+PI*r*r);
+     }
+     public static void main(String[] args){
+          new Empty().area();
+          new Empty(3).area();
+     }
+}
+{% endhighlight %}
+
+在参数列表中也可以将参数声明为final，这意味着无法在方法中修改参数的值或者参数所指向的引用。
+
+使用final方法的两个原因是：
+
+- 把方法锁定，以确保继承类中使方法行为保持不变，并且不会被覆盖。
+- 早期的java版本中出于效率考虑，作为内联调用，现在由于JVM的自动优化，已经不需要了。
+
+类中所有private方法都隐式的指定为final，但是好像没什么必要。final类意味着该类永远不需要修改，也不能有子类。
+
+在带有继承的类中（实际上是所有的类），JVM总是试图首先访问`main()`方法，加载器开始启动加载编译代码，如遇到基类，就首先加载基类（防止子类的初始化对基类的依赖），加载完成后就可以创建对象了。首先是对象中所有的基本类型设为默认值，对象引用设为null，然后基类的构造器会被调用，基类构造器完成之后实例变量按次序被初始化，最后执行构造器的其余部分。
+
+##第8章 多态
+
 <div class="alert alert-block alert-warn form-inline" style="text-align:center; vertical-align:middle; font-size: 16px; font-weight:300;">To be continue!</div>
