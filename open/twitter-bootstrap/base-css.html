@@ -79,16 +79,16 @@
       <!-- Masthead
 ================================================== -->
 <header class="jumbotron subhead" id="overview">
-  <h1>Base CSS</h1>
-  <p class="lead">On top of the scaffolding, basic HTML elements are styled and enhanced with extensible classes to provide a fresh, consistent look and feel.</p>
+  <h1>基本样式表</h1>
+  <p class="lead">在基本构架之上，基本的HTML元素由于扩展类的风格化和增强，提供了一个新鲜的、一致性的外观和感觉。</p>
   <div class="subnav">
     <ul class="nav nav-pills">
-      <li><a href="#typography">Typography</a></li>
-      <li><a href="#code">Code</a></li>
-      <li><a href="#tables">Tables</a></li>
-      <li><a href="#forms">Forms</a></li>
-      <li><a href="#buttons">Buttons</a></li>
-      <li><a href="#icons">Icons by Glyphicons</a></li>
+      <li><a href="#typography">字体排版</a></li>
+      <li><a href="#code">代码</a></li>
+      <li><a href="#tables">表格</a></li>
+      <li><a href="#forms">表单</a></li>
+      <li><a href="#buttons">按钮</a></li>
+      <li><a href="#icons">图标</a></li>
     </ul>
   </div>
 </header>
@@ -98,22 +98,22 @@
 ================================================== -->
 <section id="typography">
   <div class="page-header">
-    <h1>Typography <small>Headings, paragraphs, lists, and other inline type elements</small></h1>
+    <h1>字体排版 <small>标题、段落、列表和其他行内元素</small></h1>
   </div>
 
-  <h2>Headings &amp; body copy</h2>
+  <h2>标题 &amp; 正文</h2>
 
   <!-- Headings & Paragraph Copy -->
   <div class="row">
     <div class="span4">
-      <h3>Typographic scale</h3>
-      <p>The entire typographic grid is based on two Less variables in our variables.less file: <code>@baseFontSize</code> and <code>@baseLineHeight</code>. The first is the base font-size used throughout and the second is the base line-height.</p>
-      <p>We use those variables, and some math, to create the margins, paddings, and line-heights of all our type and more.</p>
+      <h3>字体缩放</h3>
+      <p>全部的排字网格都基于<strong>variables.less</strong>中的两个Less变量：<code>@baseFontSize</code> and <code>@baseLineHeight</code>。第一个基于字体大小（font-size），第二个基于行高（line-height）。</p>
+      <p>我们使用这些变量和一些数学运算来产生外边距（margin）、内边距（padding），和行高（line-height）以及其他一些元素属性。</p>
     </div>
     <div class="span4">
-      <h3>Example body text</h3>
+      <h3>body中文本的例子</h3>
       <p>Nullam quis risus eget urna mollis ornare vel eu leo. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nullam id dolor id nibh ultricies vehicula ut id elit.</p>
-      <p>Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Donec sed odio dui.</p>
+      <p>Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Donec sed odio dui.[拉丁语]</p>
     </div>
     <div class="span4">
       <div class="well">
@@ -128,13 +128,13 @@
   </div>
 
   <!-- Misc Elements -->
-  <h2>Emphasis, address, and abbreviation</h2>
+  <h2>强调、地址和缩写</h2>
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
-        <th>Element</th>
-        <th>Usage</th>
-        <th>Optional</th>
+        <th>元素</th>
+        <th>用法</th>
+        <th>选项</th>
       </tr>
     </thead>
     <tbody>
@@ -143,7 +143,7 @@
           <code>&lt;strong&gt;</code>
         </td>
         <td>
-          For emphasizing a snippet of text with <strong>important</strong>
+          以粗体表示<strong>强调</strong>
         </td>
         <td>
           <span class="muted">None</span>
@@ -154,7 +154,7 @@
           <code>&lt;em&gt;</code>
         </td>
         <td>
-          For emphasizing a snippet of text with <em>stress</em>
+          以斜体表示<em>强调</em>
         </td>
         <td>
           <span class="muted">None</span>
@@ -165,22 +165,17 @@
           <code>&lt;abbr&gt;</code>
         </td>
         <td>
-          Wraps abbreviations and acronyms to show the expanded version on hover
+          包裹缩略词和首字母缩略词，在鼠标悬浮时显示展开的形式
         </td>
         <td>
-          <p>Include optional <code>title</code> attribute for expanded text</p>
-          Use <code>.initialism</code> class for uppercase abbreviations.
-        </td>
+          <p><code>title</code>属性用于扩展的文本，<code>.initialism</code>类用于大写字母的缩写</p></td>
       </tr>
       <tr>
         <td>
           <code>&lt;address&gt;</code>
         </td>
-        <td>
-          For contact information for its nearest ancestor or the entire body of work
-        </td>
-        <td>
-          Preserve formatting by ending all lines with <code>&lt;br&gt;</code>
+        <td>使用它来定义地址、签名或者文档的作者身份</td>
+        <td>使用<code>&lt;br&gt;</code>结尾格式化每一行
         </td>
       </tr>
     </tbody>
@@ -188,13 +183,13 @@
 
   <div class="row">
     <div class="span4">
-      <h3>Using emphasis</h3>
-      <p><a href="#">Fusce dapibus</a>, <strong>tellus ac cursus commodo</strong>, <em>tortor mauris condimentum nibh</em>, ut fermentum massa justo sit amet risus. Maecenas faucibus mollis interdum. Nulla vitae elit libero, a pharetra augue.</p>
-      <p><strong>Note:</strong> Feel free to use <code>&lt;b&gt;</code> and <code>&lt;i&gt;</code> in HTML5, but their usage has changed a bit. <code>&lt;b&gt;</code> is meant to highlight words or phrases without conveying additional importance while <code>&lt;i&gt;</code> is mostly for voice, technical terms, etc.</p>
+      <h3>使用强调</h3>
+      <p><a href="#">Fusce dapibus</a>, <strong>tellus ac cursus commodo</strong>, <em>tortor mauris condimentum nibh</em>, ut fermentum massa justo sit amet risus. Maecenas faucibus mollis interdum. Nulla vitae elit libero, a pharetra augue.[拉丁语]</p>
+      <p><strong>注解：</strong>HTML5中可以使用<code>&lt;b&gt;</code>和<code>&lt;i&gt;</code>，但是用法略有不同。<code>&lt;b&gt;</code>只是加亮词或短语而不传递额外的重要性，同时<code>&lt;i&gt;</code>通常用于声音、技术术语等。</p>
     </div>
     <div class="span4">
-      <h3>Example addresses</h3>
-      <p>Here are two examples of how the <code>&lt;address&gt;</code> tag can be used:</p>
+      <h3>address的例子</h3>
+      <p>两个使用<code>&lt;address&gt;</code>标签的错例子：</p>
       <address>
         <strong>Twitter, Inc.</strong><br>
         795 Folsom Ave, Suite 600<br>
@@ -207,23 +202,23 @@
       </address>
     </div>
     <div class="span4">
-      <h3>Example abbreviations</h3>
-      <p>Abbreviations with a <code>title</code> attribute have a light dotted bottom border and a help cursor on hover. This gives users extra indication something will be shown on hover.</p>
-      <p>Add the <code>initialism</code> class to an abbreviation to increase typographic harmony by giving it a slightly smaller text size.</p>
-      <p><abbr title="HyperText Markup Language" class="initialism">HTML</abbr> is the best thing since sliced bread.</p>
-      <p>An abbreviation of the word attribute is <abbr title="attribute">attr</abbr>.</p>
+      <h3>缩略词的例子</h3>
+      <p>缩略词使用<code>itle</code>属性时底部会有加亮的点线，鼠标悬浮时会出现一个问号，这可以在悬浮时给用户额外的提示信息。</p>
+      <p>缩略词添加<code>initialism</code>类可以增强排版上的协调性，通过略微的调小字体。</p>
+      <p><abbr title="超文本标记语言（HyperText Markup Language）" class="initialism">HTML</abbr> is the best thing since sliced bread.</p>
+      <p>An abbreviation of the word attribute is <abbr title="属性（attribute）">attr</abbr>.</p>
     </div>
   </div>
 
 
   <!-- Blockquotes -->
-  <h2>Blockquotes</h2>
+  <h2>引用块（Blockquote）</h2>
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
-        <th>Element</th>
-        <th>Usage</th>
-        <th>Optional</th>
+        <th>元素</th>
+        <th>用法</th>
+        <th>选项</th>
       </tr>
     </thead>
     <tbody>
@@ -232,11 +227,11 @@
           <code>&lt;blockquote&gt;</code>
         </td>
         <td>
-          Block-level element for quoting content from another source
+          块级的元素，用于从其他地方引用内容
         </td>
         <td>
-          <p>Add <code>cite</code> attribute for source URL</p>
-          Use <code>.pull-left</code> and <code>.pull-right</code> classes for floated options
+          <p>添加<code>cite</code>属性用于URL地址</p>
+          使用<code>.pull-left</code>和<code>.pull-right</code>类用作浮动的项
         </td>
       </tr>
       <tr>
@@ -244,18 +239,17 @@
           <code>&lt;small&gt;</code>
         </td>
         <td>
-          Optional element for adding a user-facing citation, typically an author with title of work
-        </td>
+          可选的元素用于增加一个面向用户的引用，通常是作者所做的工作</td>
         <td>
-          Place the <code>&lt;cite&gt;</code> around the title or name of source
+        <code>&lt;cite&gt;</code>用于原始资料的题目或者名字周围
         </td>
       </tr>
     </tbody>
   </table>
   <div class="row">
     <div class="span4">
-      <p>To include a blockquote, wrap <code>&lt;blockquote&gt;</code> around any <abbr title="HyperText Markup Language">HTML</abbr> as the quote. For straight quotes we recommend a <code>&lt;p&gt;</code>.</p>
-      <p>Include an optional <code>&lt;small&gt;</code> element to cite your source and you'll get an em dash <code>&amp;mdash;</code> before it for styling purposes.</p>
+      <p>为了包含一个引用块，可以用<code>&lt;blockquote&gt;</code>元素包裹任何一个<abbr title="HyperText Markup Language">HTML</abbr>作为引用。但是直接的引用还是推荐用<code>&lt;p&gt;</code>.</p>
+      <p>包含一个可选的元素<code>&lt;small&gt;</code>，可以在最后的落款前加入一个长破折号<code>mdash;</code>。</p>
     </div>
     <div class="span8">
 <pre class="prettyprint linenums">
@@ -267,17 +261,17 @@
     </div>
   </div><!--/row-->
 
-  <h3>Example blockquotes</h3>
+  <h3>引用块的例子</h3>
   <div class="row">
     <div class="span6">
-      <p>Default blockquotes are styled as such:</p>
+      <p>默认的引用块就像这个样子：</p>
       <blockquote>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante venenatis.</p>
         <small>Someone famous in <cite title="">Body of work</cite></small>
       </blockquote>
     </div>
     <div class="span6">
-      <p>To float your blockquote to the right, add <code>class="pull-right"</code>:</p>
+      <p>为了让引用块向右浮动，可以增加<code>class="pull-right"</code>：</p>
       <blockquote class="pull-right">
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante venenatis.</p>
         <small>Someone famous in <cite title="">Body of work</cite></small>
@@ -287,10 +281,10 @@
 
 
   <!-- Lists -->
-  <h2>Lists</h2>
+  <h2>列表</h2>
   <div class="row">
     <div class="span4">
-      <h3>Unordered</h3>
+      <h3>无序列表</h3>
       <p><code>&lt;ul&gt;</code></p>
       <ul>
         <li>Lorem ipsum dolor sit amet</li>
@@ -311,7 +305,7 @@
       </ul>
     </div>
     <div class="span4">
-      <h3>Unstyled</h3>
+      <h3>无样式列表</h3>
       <p><code>&lt;ul class="unstyled"&gt;</code></p>
       <ul class="unstyled">
         <li>Lorem ipsum dolor sit amet</li>
@@ -332,7 +326,7 @@
       </ul>
     </div>
     <div class="span4">
-      <h3>Ordered</h3>
+      <h3>有序列表</h3>
       <p><code>&lt;ol&gt;</code></p>
       <ol>
         <li>Lorem ipsum dolor sit amet</li>
@@ -349,7 +343,7 @@
   <br>
   <div class="row">
     <div class="span4">
-      <h3>Description</h3>
+      <h3>描述型</h3>
       <p><code>&lt;dl&gt;</code></p>
       <dl>
         <dt>Description lists</dt>
@@ -362,7 +356,7 @@
       </dl>
     </div>
     <div class="span8">
-      <h3>Horizontal description</h3>
+      <h3>水平描述型</h3>
       <p><code>&lt;dl class="dl-horizontal"&gt;</code></p>
       <dl class="dl-horizontal">
         <dt>Description lists</dt>
@@ -377,8 +371,8 @@
       </dl>
       <hr>
       <p>
-        <span class="label label-info">Heads up!</span>
-        Horizontal description lists will truncate terms that are too long to fit in the left column fix <code>text-overflow</code>. In narrower viewports, they will change to the default stacked layout.
+        <span class="label label-info">注意！</span>
+        水平描述型列表可能会截断过长的内容，为了适合左侧列的的固定<code>text-overflow</code>。在比较窄的视口，则会改变为默认的堆叠布局（stacked layout）。
       </p>
     </div>
   </div><!-- /row -->
@@ -390,19 +384,19 @@
 ================================================== -->
 <section id="code">
   <div class="page-header">
-    <h1>Code <small>Inline and block code snippets</small></h1>
+    <h1>代码 <small>行内的或者成块的代码片段</small></h1>
   </div>
   <div class="row">
     <div class="span4">
-      <h2>Inline</h2>
-      <p>Wrap inline snippets of code with <code>&lt;code&gt;</code>.</p>
+      <h2>行内的</h2>
+      <p>使用<code>&lt;code&gt;</code>包裹代码片段。</p>
 <pre class="prettyprint linenums">
 For example, &lt;code&gt;section&lt;/code&gt; should be wrapped as inline.
 </pre>
     </div><!--/span-->
     <div class="span4">
-      <h2>Basic block</h2>
-      <p>Use <code>&lt;pre&gt;</code> for multiple lines of code. Be sure to escape any angle brackets in the code for proper rendering.</p>
+      <h2>基本块</h2>
+      <p><code>&lt;pre&gt;</code>用于多行的代码，需要注意尖括号在代码块中的显示。</p>
 <pre>
 &lt;p&gt;Sample text here...&lt;/p&gt;
 </pre>
@@ -411,12 +405,12 @@ For example, &lt;code&gt;section&lt;/code&gt; should be wrapped as inline.
   &amp;lt;p&amp;gt;Sample text here...&amp;lt;/p&amp;gt;
 &lt;/pre&gt;
 </pre>
-      <p><strong>Note:</strong> Be sure to keep code within <code>&lt;pre&gt;</code> tags as close to the left as possible; it will render all tabs.</p>
-      <p>You may optionally add the <code>.pre-scrollable</code> class which will set a max-height of 350px and provide a y-axis scrollbar.</p>
+      <p><strong>注释：</strong>确保<code>&lt;pre&gt;</code>标签内的代码尽可能的靠左，否则会被渲染成制表符。</p>
+      <p>你可以选择添加<code>.pre-scrollable</code>类，它可以将最大高度（max-height）设置为350px，并且提供一个y轴的滚动条。</p>
     </div><!--/span-->
     <div class="span4">
-      <h2>Google Prettify</h2>
-      <p>Take the same <code>&lt;pre&gt;</code> element and add two optional classes for enhanced rendering.</p>
+      <h2>Google美化</h2>
+      <p>同样使用<code>&lt;pre&gt;</code>元素，只需要添加两个可选的类就可以增强渲染效果。</p>
 <pre class="prettyprint linenums" style="margin-bottom: 9px;">
 &lt;p&gt;Sample text here...&lt;/p&gt;
 </pre>
@@ -426,7 +420,7 @@ For example, &lt;code&gt;section&lt;/code&gt; should be wrapped as inline.
   &amp;lt;p&amp;gt;Sample text here...&amp;lt;/p&amp;gt;
 &lt;/pre&gt;
 </pre>
-      <p><a href="http://code.google.com/p/google-code-prettify/">Download google-code-prettify</a> and view the readme for <a href="http://google-code-prettify.googlecode.com/svn/trunk/README.html">how to use</a>.</p>
+      <p><a href="http://code.google.com/p/google-code-prettify/">下载google-code-prettify</a>以及查看<a href="http://google-code-prettify.googlecode.com/svn/trunk/README.html">用法</a>。</p>
     </div><!--/span-->
   </div><!--/row-->
 </section>
@@ -437,10 +431,10 @@ For example, &lt;code&gt;section&lt;/code&gt; should be wrapped as inline.
 ================================================== -->
 <section id="tables">
   <div class="page-header">
-    <h1>Tables <small>For, you guessed it, tabular data</small></h1>
+    <h1>表格 <small>正如你所猜到的，用于表格式的数据</small></h1>
   </div>
 
-  <h2>Table markup</h2>
+  <h2>表格的标记</h2>
   <div class="row">
     <div class="span8">
       <table class="table table-bordered table-striped">
@@ -450,8 +444,8 @@ For example, &lt;code&gt;section&lt;/code&gt; should be wrapped as inline.
         </colgroup>
         <thead>
           <tr>
-            <th>Tag</th>
-            <th>Description</th>
+            <th>标签</th>
+            <th>描述</th>
           </tr>
         </thead>
         <tbody>
@@ -460,7 +454,7 @@ For example, &lt;code&gt;section&lt;/code&gt; should be wrapped as inline.
               <code>&lt;table&gt;</code>
             </td>
             <td>
-              Wrapping element for displaying data in a tabular format
+              包裹以列表形式展示数据的元素
             </td>
           </tr>
           <tr>
@@ -468,15 +462,14 @@ For example, &lt;code&gt;section&lt;/code&gt; should be wrapped as inline.
               <code>&lt;thead&gt;</code>
             </td>
             <td>
-              Container element for table header rows (<code>&lt;tr&gt;</code>) to label table columns
-            </td>
+              容器元素，用于表头的列（<code>&lt;tr&gt;</code>）</td>
           </tr>
           <tr>
             <td>
               <code>&lt;tbody&gt;</code>
             </td>
             <td>
-              Container element for table rows (<code>&lt;tr&gt;</code>) in the body of the table
+              容器元素，用于表格的主体列（<code>&lt;tr&gt;</code>）
             </td>
           </tr>
           <tr>
@@ -484,7 +477,7 @@ For example, &lt;code&gt;section&lt;/code&gt; should be wrapped as inline.
               <code>&lt;tr&gt;</code>
             </td>
             <td>
-              Container element for a set of table cells (<code>&lt;td&gt;</code> or <code>&lt;th&gt;</code>) that appears on a single row
+              容器元素，用于出现在一行的一组单元格（<code>&lt;td&gt;</code>或者<code>&lt;th&gt;</code>）
             </td>
           </tr>
           <tr>
@@ -492,24 +485,22 @@ For example, &lt;code&gt;section&lt;/code&gt; should be wrapped as inline.
               <code>&lt;td&gt;</code>
             </td>
             <td>
-              Default table cell
-            </td>
+              默认的单元格</td>
           </tr>
           <tr>
             <td>
               <code>&lt;th&gt;</code>
             </td>
             <td>
-              Special table cell for column (or row, depending on scope and placement) labels<br>
-              Must be used within a <code>&lt;thead&gt;</code>
-            </td>
+              用于<code>&lt;thead&gt;</code>之中的特殊单元格， 
+            依赖于作用范围和位置，可以用于行或者列</td>
           </tr>
           <tr>
             <td>
               <code>&lt;caption&gt;</code>
             </td>
             <td>
-              Description or summary of what the table holds, especially useful for screen readers
+              描述或者汇总表格的内容，对全屏阅读特别有用
             </td>
           </tr>
         </tbody>
@@ -535,59 +526,59 @@ For example, &lt;code&gt;section&lt;/code&gt; should be wrapped as inline.
     </div>
   </div>
 
-  <h2>Table options</h2>
+  <h2>表格选项</h2>
   <table class="table table-bordered table-striped">
   <thead>
       <tr>
-        <th>Name</th>
-        <th>Class</th>
-        <th>Description</th>
+        <th>名称</th>
+        <th>类</th>
+        <th>描述</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td>Default</td>
+        <td>默认（Default）</td>
         <td class="muted">None</td>
-        <td>No styles, just columns and rows</td>
+        <td>默认样式，只有行和列</td>
       </tr>
       <tr>
-        <td>Basic</td>
+        <td>基本（Basic）</td>
         <td>
           <code>.table</code>
         </td>
-        <td>Only horizontal lines between rows</td>
+        <td>只有行之间的水平线</td>
       </tr>
       <tr>
-        <td>Bordered</td>
+        <td>有边的（Bordered）</td>
         <td>
           <code>.table-bordered</code>
         </td>
-        <td>Rounds corners and adds outer border</td>
+        <td>圆角和外边框</td>
       </tr>
       <tr>
-        <td>Zebra-stripe</td>
+        <td>斑马纹（Zebra-stripe）</td>
         <td>
           <code>.table-striped</code>
         </td>
-        <td>Adds light gray background color to odd rows (1, 3, 5, etc)</td>
+        <td>奇数行使用亮灰色的背景</td>
       </tr>
       <tr>
-        <td>Condensed</td>
+        <td>压缩的（Condensed）</td>
         <td>
           <code>.table-condensed</code>
         </td>
-        <td>Cuts vertical padding in half, from 8px to 4px, within all <code>td</code> and <code>th</code> elements</td>
+        <td>纵向的内边距（padding）减掉一半，从8x到4px，对<code>td</code>和<code>th</code>都有效</td>
       </tr>
     </tbody>
   </table>
 
 
-  <h2>Example tables</h2>
+  <h2>表格的例子</h2>
 
-  <h3>1. Default table styles</h3>
+  <h3>1. 默认样式</h3>
   <div class="row">
     <div class="span4">
-      <p>Tables are automatically styled with only a few borders to ensure readability and maintain structure. With 2.0, the <code>.table</code> class is required.</p>
+      <p>自然的表格样式，仅有少量的边线用来确保可读性和维持基本的结构，在2.0以后需要使用<code>.table</code>类。</p>
 <pre class="prettyprint linenums">
 &lt;table class="table"&gt;
   …
@@ -628,11 +619,11 @@ For example, &lt;code&gt;section&lt;/code&gt; should be wrapped as inline.
   </div>
 
 
-  <h3>2. Striped table</h3>
+  <h3>2. 带条纹的表格</h3>
   <div class="row">
     <div class="span4">
-      <p>Get a little fancy with your tables by adding zebra-striping&mdash;just add the <code>.table-striped</code> class.</p>
-      <p class="muted"><strong>Note:</strong> Striped tables use the <code>:nth-child</code> CSS selector and is not available in IE7-IE8.</p>
+      <p>为你的表格增加一些斑马纹的特效，使用<code>.table-striped</code>类就可以了。</p>
+      <p class="muted"><strong>注释：</strong>带条纹的表格使用了<code>:nth-child</code>CSS选择器，在IE7-IE8中无效。</p>
 <pre class="prettyprint linenums" style="margin-bottom: 18px;">
 &lt;table class="table table-striped"&gt;
   …
@@ -673,10 +664,10 @@ For example, &lt;code&gt;section&lt;/code&gt; should be wrapped as inline.
   </div>
 
 
-  <h3>3. Bordered table</h3>
+  <h3>3. 带边框的表格</h3>
   <div class="row">
     <div class="span4">
-      <p>Add borders around the entire table and rounded corners for aesthetic purposes.</p>
+      <p>增加整体的外边框和用于美学目的的圆角设计。</p>
 <pre class="prettyprint linenums">
 &lt;table class="table table-bordered"&gt;
   …
@@ -721,10 +712,10 @@ For example, &lt;code&gt;section&lt;/code&gt; should be wrapped as inline.
   </div>
 
 
-  <h3>4. Condensed table</h3>
+  <h3>4. 压缩的表格</h3>
   <div class="row">
     <div class="span4">
-      <p>Make your tables more compact by adding the <code>.table-condensed</code> class to cut table cell padding in half (from 8px to 4px).</p>
+      <p>为了让你的表格更紧凑，可以使用<code>.table-condensed</code>类，纵向的内边距（padding）减掉一半，从8x到4px。</p>
 <pre class="prettyprint linenums" style="margin-bottom: 18px;">
 &lt;table class="table table-condensed"&gt;
   …
@@ -765,10 +756,10 @@ For example, &lt;code&gt;section&lt;/code&gt; should be wrapped as inline.
 
 
 
-  <h3>5. Combine them all!</h3>
+  <h3>5. 综合起来的效果</h3>
   <div class="row">
     <div class="span4">
-      <p>Feel free to combine any of the table classes to achieve different looks by utilizing any of the available classes.</p>
+      <p>可以自由的组合任何可用的类，以达到不同的视觉效果。</p>
 <pre class="prettyprint linenums" style="margin-bottom: 18px;">
 &lt;table class="table table-striped table-bordered table-condensed"&gt;
   ...

@@ -667,4 +667,1030 @@ public final class Empty{
 
 ##第8章 多态
 
+**封装**通过合并特征和行为来创建新的数据类型。**实现隐藏**则通过将细节**私有化**把接口和实现分离开来。**多态**（也称作动态绑定、后期绑定或运行时绑定）的作用是消除类型之间的耦合关系。
+
+java中除了static方法和final方法（private方法属于final方法）外，其他方法都是后期绑定。方法声明为final可以防止被覆盖，但更重要的“关闭”了动态绑定。动态绑定是多态的基础，所以静态方法和final方法（私有方法）是不具有多态性的，而且所有访问域的操作也都是没有多态性的，因为域的操作时是由编译器来解析的，它在编译后就已经确定了。在编译之前对象是作为它的引用类型（转型过以后的类型）来处理的，所以不满足多态性的方法是作为转型后的类型的对象来发生行为的。
+ {% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+
+class Circle extends Shape{
+     public String name="Circle";
+     public void draw(){
+          println("Drawing Circle");
+     }
+     public static void getType(){
+          println("Type: Circle");
+     }
+}
+class Square extends Shape{
+     public String name="Square";
+     public void say(){
+          println("I'm Shape");
+     }
+     public void draw(){
+          println("Drawing Square");
+     }
+}
+
+public class Shape{
+     public String name="Shape";
+     private void say(){
+          println("I'm Shape");
+     }
+     public void draw(){
+          println("Drawing Shape");
+     }
+     public static void getType(){
+          println("Type: Shape");
+     }
+     public static void main(String[] args){
+          Shape shape=new Shape();
+          Shape circle=new Circle();
+          Shape square=new Square();
+          println("Name: shape->"+shape.name+", circle->"+circle.name+", square->"+square.name);
+          println("*****draw()*****");
+          shape.draw();
+          circle.draw();
+          square.draw();
+          println("*****static: circle.getType()*****");
+          circle.getType();
+          println("*****Shape private: square. say()*****");
+          square. say();
+     }
+}
+
+//out:
+//Name: shape->Shape, circle->Shape, square->Shape
+//*****draw()*****
+//Drawing Shape
+//Drawing Circle
+//Drawing Square
+//*****static: circle.getType()*****
+//Type: Shape
+//*****Shape private: square. say()*****
+//I'm Shape
+{% endhighlight %}
+
+在一个类中，构造器隐式的声明为static，private方法隐式声明为final，因此都是不具备多态性的。创建对象时总是优先调用父类的构造器，其次才参考当前类中域的声明顺序，即复杂对象调用构造器遵循下面的顺序（对象销毁的顺序与此相反）：
+
+1. 在其他事情发生之前，将分配给对象的存储空间初始化为0（或者null）。
+2. 调用基类构造器，这个过程是不断递归调用。
+3. 按声明顺序调用成员的初始化方法。
+4. 调用导出类构造器的主体。
+
+模拟引用计数的例子：
+ {% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+
+class Shared{
+     private int refcount = 0;
+     private static long counter = 0;
+     private final long id = counter++;
+     public void shared(){
+          println("Creating "+this);
+     }
+     public void addRef() { refcount++; }
+     protected void dispose(){
+          if(--refcount == 0){
+               println("Disposing "+this);
+          }
+     }
+     public String toString() { return "Shared "+id;}
+}
+class Composing{
+     private Shared shared;
+     private static long counter = 0;
+     private final long id = counter++;
+     public Composing(Shared shared){
+          println("Creating "+this);
+          this.shared = shared;
+          this.shared.addRef();
+     }
+     protected void dispose(){
+          println("disposing "+this);
+          shared.dispose();
+     }
+     public String toString() { return "Composing "+id; }
+}
+
+public class RefCounting{
+     public static void main(String[] args){
+          Shared shared = new Shared();
+          Composing[] composing = {
+               new Composing(shared),
+               new Composing(shared),
+               new Composing(shared),
+               new Composing(shared),
+               new Composing(shared),
+               new Composing(shared),
+               new Composing(shared)
+          };
+          for(Composing c: composing) c.dispose();
+     }
+}
+//out:
+//Creating Composing 0
+//Creating Composing 1
+//Creating Composing 2
+//Creating Composing 3
+//Creating Composing 4
+//Creating Composing 5
+//Creating Composing 6
+//disposing Composing 0
+//disposing Composing 1
+//disposing Composing 2
+//disposing Composing 3
+//disposing Composing 4
+//disposing Composing 5
+//disposing Composing 6
+//Disposing Shared 0
+{% endhighlight %}
+
+设计构造器的准则：**用尽可能简单的方法使对象进入正常状态；如果可以的话，尽量避免调用其他方法**。构造器内唯一能够安全调用的方法是基类的final（或private）方法，因为这些方法不能被覆盖，所以就不会出现转型的尴尬。
+ {% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+
+class Glyph{
+     public void draw(){
+          println("Glyph.draw()");
+     }
+     public Glyph(){
+          println("Glyph() before draw()");
+          draw();
+          println("Glyph() after draw()");
+     }
+}
+class RoundGlyph extends Glyph{
+     private int radius = 1;
+     public RoundGlyph(int r){
+          radius = r;
+          println("RoundGlyph(), radius = "+radius);
+     }
+     public void draw(){
+          println("RoundGlyph.draw(), radius = "+radius);
+     }
+}
+
+public class PolyConstructors{
+     public static void main(String[] args){
+          new RoundGlyph(5);
+     }
+}
+//out:
+//Glyph() before draw()
+//RoundGlyph.draw(), radius = 0
+//Glyph() after draw()
+//RoundGlyph(), radius = 5
+{% endhighlight %}
+
+状态模式使我们能够在运行期间获得动态灵活性，既可以动态改变对象的状态。一条通用的准则为，**用继承表达行为间的差异，并用字段表达状态上的变化**。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+
+class Actor{
+     public void act() {}
+}
+class HappyActor extends Actor{
+     public void act() { println("HappyActor"); }
+}
+class SadActor extends Actor{
+     public void act() { println("SadActor"); }
+}
+class Stage{
+     private Actor actor = new HappyActor();
+     public void change() { actor = new SadActor(); }
+     public void performPlay() { actor.act(); }
+}
+public class Transmogrify{
+     public static void main(String[] args){
+          Stage stage = new Stage();
+          stage.performPlay();
+          stage.change();
+          stage.performPlay();
+     }
+}
+//out:
+//HappyActor
+//SadActor
+{% endhighlight %}
+
+向上转型是自然的，但却会造成信息丢失；先下转型需要强制转型，而且是不安全的，如果所转类型是正确的类型，则转型成功，否则会抛出一个`ClassCastException`异常。
+
+##第9章 接口
+
+**接口**和**内部类**为我们提供了一种将接口与实现分离的更加结构化的方法。
+
+**抽象类**是对普通基类的一般抽象，它允许不完全的抽象，即抽象类中某些方法可以有具体实现。**interface**关键字产生一个完全抽象的类，不提供任何的实现。
+
+- 接口中的域隐式声明为public、static和final，可以被被非常量表达式初始化，但是不能是**空final**。
+- 接口中的方法默认是public，而且必须是（无论有没有显示声明）。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+interface Instrument{
+     int VALUE = 5;
+     void play();
+     void adjust();
+     String what();
+}
+abstract class Wind implements Instrument{
+     public abstract void play();
+     public abstract void adjust();
+     public String variety(){ return "Wind"; }
+     public String what(){ return variety()+": "+this.getClass().getSimpleName(); }
+}
+class Brass extends Wind{
+     public void play(){
+          println("Brass.play()");
+     }
+     public void adjust(){
+          println("Brass.adjust()");
+     }
+}
+class WoodWind extends Wind{
+     public void play(){
+          println("WoodWind.play()");
+     }
+     public void adjust(){
+          println("WoodWind.adjust()");
+     }
+}
+public class Music{
+     public void tune(Instrument it) { it.play(); }
+     public void describe(Instrument it) { println(it.what()); }
+     public void tuneAll(Instrument[] its){
+          for(Instrument it : its){
+               describe(it);
+               tune(it);
+          }
+              
+     }
+     public static void main(String[] args){
+          Instrument[] its = {
+               new Brass(),
+               new WoodWind()
+          };
+          new Music().tuneAll(its);
+     }
+}
+//out:
+//Wind: Brass
+//Brass.play()
+//Wind: WoodWind
+//WoodWind.play()
+{% endhighlight %}
+
+**策略模式**：创建一个能够根据所传递的参数对象的不同而具有不同行为的方法。策略模式可以使处理问题的方法和所处理的问题之间完全解耦。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+import java.util.*;
+
+interface Processor{
+     String name();
+     Object process(Object input);
+}
+class StringProcessor implements Processor{
+     public String name(){
+          return getClass().getSimpleName();
+     }
+     public Object process(Object input) { return input; }
+}
+class Upcase extends StringProcessor{
+     public String process(Object input){ //Covariant return
+          return ((String)input).toUpperCase();
+     }
+}
+class Downcase extends StringProcessor{
+     public String process(Object input){ //Covariant return
+          return ((String)input).toLowerCase();
+     }
+}
+class Splitter extends StringProcessor{
+     public String process(Object input){ //Covariant return
+          return Arrays.toString(((String)input).split(" "));
+     }
+}
+public class Strategy{
+     public static void process(Processor pro, Object obj){
+          println("Using Processor "+pro.name());
+          println(pro.process(obj));
+     }
+     public static String str = "Beautiful is better than ugly";
+     public static void main(String[] args){
+          process(new Upcase(), str);
+          process(new Downcase(), str);
+          process(new Splitter(), str);
+     }
+}
+//out:
+//Using Processor Upcase
+//BEAUTIFUL IS BETTER THAN UGLY
+//Using Processor Downcase
+//beautiful is better than ugly
+//Using Processor Splitter
+//[Beautiful, is, better, than, ugly]
+{% endhighlight %}
+
+但是，经常碰到的问题是想要使用的类是你无法修改的，因为大多数情况下使用的接口都不是自己创建的。这时，可以使用**适配器模式**，适配器中的代码将接受你所拥有的接口，并产生你所需要的接口。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+import java.util.*;
+
+class Filter{
+     public String name(){
+          return getClass().getSimpleName();
+     }
+     public Wavaform process(Wavaform input) { return input; }
+}
+class FilterAdapter implements Processor{
+     Filter filter;
+     public FilterAdapter(Filter filter) { this.filter = filter; }
+     public String name(){ return filter.name(); }
+     public Wavaform process(Object input){
+          return filter.process((Wavaform)input);
+     }
+}
+public class Adapter{
+     public static void main(String[] args){
+          Strategy.process(new FilterAdapter(new LowPass(1.0)), new Wavaform());
+          Strategy.process(new FilterAdapter(new HighPass(2.0)), new Wavaform());
+          Strategy.process(new FilterAdapter(new BandPass(3.0, 4.0)), new Wavaform());
+     }
+}
+
+class Wavaform{
+     private static long counter;
+     private final long id = counter++;
+     public String toString() { return "Wavaform "+id; }
+}
+class LowPass extends Filter{
+     double cutoff;
+     public LowPass(double cutoff) { this.cutoff = cutoff; }
+     public Wavaform process(Wavaform input) { return input; }
+}
+class HighPass extends Filter{
+     double cutoff;
+     public HighPass(double cutoff) { this.cutoff = cutoff; }
+     public Wavaform process(Wavaform input) { return input; }
+}
+class BandPass extends Filter{
+     double lowCutoff, highCutoff;
+     public BandPass(double lowCutoff, double highCutoff){
+          this.lowCutoff = lowCutoff;
+          this.highCutoff = highCutoff;
+     }
+     public Wavaform process(Wavaform input) { return input; }
+}
+//out:
+//Using Processor LowPass
+//Wavaform 0
+//Using Processor HighPass
+//Wavaform 1
+//Using Processor BandPass
+//Wavaform 2
+{% endhighlight %}
+
+使用接口的原因是：
+
+- 为了能够向上转型为多个基类型，以此来获得更大的灵活性（核心原因）。
+- 防止客户端程序员以此类来创建对象，并确保这仅仅是建立一个接口。
+
+接口可以支持**多重继承**，即组合多个类的接口，从而可以实现类的扩展，同时在需要的时候又可以向上转型为每一个接口。如果要同时使用`extends`和`implements`，那必须继承在前，而且继承的父类中与接口同签名的函数可以作为对该接口的实现。接口也可以跟普通类一样通过继承和组合得到扩展，但是应该避免在需要组合的不同接口中使用相同的方法名，由于在多重继承中，覆盖、实现和重载搅在一起，而且重载方法仅通过返回类型时区分不开的，这会造成代码可读性的混乱。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+
+interface CanFight { void fight(); }
+interface CanSwim { void swim(); }
+interface CanFly { void fly(); }
+class ActionCharacter { public void fight() {}; }
+class Hero extends ActionCharacter implements CanFight, CanFly, CanSwim {
+     public void swim() {};
+     public void fly() {};
+}
+public class Adventure{
+     public static void cft(CanFight x){ x.fight(); }
+     public static void csm(CanSwim x){ x.swim(); }
+     public static void cfy(CanFly x){ x.fly(); }
+     public static void acr(ActionCharacter x){ x.fight(); }
+     public static void main(String[] args){
+          Hero hero = new Hero();
+          cft(hero); //as a CanFight
+          csm(hero); //as a CanSwim
+          cfy(hero); //as a CanFly
+          acr(hero); //as an ActionCharacter
+     }
+}
+{% endhighlight %}
+
+接口最吸引人的原因是它允许一个接口具有多个不同的具体实现，因此接口常用于策略模式，这样只要实现指定的接口，就可以用任何实现该接口的对象来调用该接口规定的方法。再结合适配器，我们可以在任何类之上添加新的接口，让方法接受接口类型，然后任何实现该接口的类都可以对接口的方法进行适配。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+import java.util.*;
+import java.nio.*;
+
+class RandomDoubles {
+     private static Random rand = new Random(47);
+     public double next() { return rand.nextDouble(); }
+}
+public class AdaptedRandomDoubles extends RandomDoubles implements Readable{
+     private int count;
+     public AdaptedRandomDoubles(int count) { this.count = count; }
+     public int read(CharBuffer cb){
+          if(count-- == 0) return -1;
+          String result = Double.toString(next())+" ";
+          cb.append(result);
+          return result.length();
+     }
+     public static void main(String[] args){
+          Scanner sn = new Scanner(new AdaptedRandomDoubles(7));
+          while(sn.hasNextDouble()) println(sn.nextDouble());
+     }
+}
+{% endhighlight %}
+
+接口可以被嵌套在类或者其他接口中，当实现某个接口时不需要实现嵌套在其内部的任何接口，而且private接口不能在定义它的类之外被实现，private接口强制接口中的方法不允许添加任何类型信息，即不能向上转型，嵌套的public接口可以在外部被实现，实现格式为` ... implements ClassA.NestedB `。
+
+接口是实现多重继承的途径，而生成遵循某个接口的对象的典型方式就是**工厂方法模式**。这与直接构造不同，我们在工厂对象上调用的是创建方法，工厂对象将生成接口的某个实现对象。理论上，通过这种方式，我们的代码将完全与接口的实现分离。
+
+##第10章 内部类
+
+**内部类**就是将一个类的定义放在另一个类的内部，内部类有一些非常有用的特性，而且这与组合是完全不同的概念，它允许你将一些逻辑相关的类组织在一起，并且控制内部类的可视性。
+
+在外部类中创建内部类的对象，必须明确指明对象的类型：`OuterClassName.InnerClassName`。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+public class Parcel{
+     class Contents{
+          private int i = 11;
+          public int value() { return i; }
+     }
+     class Destination{
+          private String label;
+          Destination(String whereTo) { label = whereTo; }
+          String readLabel() { return label; }
+     }
+     public Destination to(String str){
+          return new Destination(str);
+     }
+     public Contents contents(){
+          return new Contents();
+     }
+     public void ship(String dest){
+          Contents con = contents();
+          Destination des = to(dest);
+          println(des.readLabel());
+     }
+     public static void main(String[] args){
+          Parcel p = new Parcel();
+          p.ship("Tasmania");
+          Parcel q = new Parcel();
+          Parcel.Contents pc = q.contents();
+          Parcel.Destination pd = q.to("Borneo");
+     }
+}
+{% endhighlight %}
+
+###迭代器模式
+
+内部类不光只是一种名字隐藏和组织代码的模式，内部类还具有其外围类的所有元素的访问权，更重要的内部类的对象与制造它的外围对象之间就有了一种联系，使得它能访问其外围对象的所有成员。这里有一个**迭代器模式**内部类实现的例子。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+interface Selector{
+     boolean end();
+     Object current();
+     void next();
+}
+public class Iterator{
+     private Object[] items;
+     private int next = 0;
+     public Iterator(int size) { items = new Object[size]; }
+     public void add(Object obj){
+          if(next < items.length) items[next++] = obj;
+     }
+     private class IteratorSelector implements Selector{
+          private int i = 0;
+          public boolean end() { return i == items.length; }
+          public Object current() { return items[i]; }
+          public void next() { if(i < items.length) i++; }
+     }
+     public Selector selector() { return new IteratorSelector(); }
+     public static void main(String[] args){
+          Iterator iterator = new Iterator(10);
+          for(int i=0; i<10; i++)
+               iterator.add(Integer.toString(i));
+          Selector selector = iterator.selector();
+          while(!selector.end()){
+               print(selector.current()+" ");
+               selector.next();
+          }
+          println();
+     }
+}
+{% endhighlight %}
+
+###`.this`&`.new`语法
+
+外部类的名字后紧跟圆点和this，就像`OuterClassName.this`就可以在内部类中产生一个外部类的引用，当然单独的this还是内部类自己的引用。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+public class DotThis{
+     void funtion() { println("DotThis.funtion()"); }
+     public class Inner{
+          public DotThis outer() { return DotThis.this; }
+     }
+     public static class StaticInner{
+          public void say() { println("I'm static"); }
+     }
+     public Inner inner() { return new Inner(); }
+     public static void main(String[] args){
+          DotThis dt = new DotThis();
+          DotThis.Inner dti = dt.inner();
+          DotThis.Inner dni = dt.new Inner();
+          //StaticInner dsi = new StaticInner();
+          //两种方式都是可行的
+          DotThis.StaticInner dsi = new DotThis.StaticInner();
+          dti.outer().funtion();
+          dni.outer().funtion();
+          dsi.say();
+     }
+}
+{% endhighlight %}
+
+上例展示了两种创建内部类对象的方法，第二种用到了`.new`语法，就是你必须使用外部类的对象来创建内部类的对象。这是因为内部类的对象必须依附于外部类的对象，但是如果是**嵌套类**（即静态内部类），就不需要对外部类对象的引用。
+
+内部类实现接口可以很方便的隐藏实现细节，private的内部类由于外界的访问是受限的，这样就能完全阻止任何依赖于类型的编码，因为客户端程序员只能看到原始的基类或者接口，看不到具体的实现，甚至导出类的具体类型。此外，由于从客户端程序员来看，由于不能访问新增的，不属于原接口的内容，所以扩展接口是没有意义的。
+
+实际上可以在一个方法或者任意的作用域内定义内部类，这样做有两个好处：
+
+- 实现某些类的接口，于是可以创建并返回对其的引用。
+- 要解决一个复杂的问题，需要一个类来辅助你的解决方案，但是又不希望它是公共可用的，或者它在别的地方根本没用。
+
+###匿名内部类
+
+**匿名内部类**允许创建一个继承自其它基类或者接口的匿名类的对象，即在new表达式中返回一个导出类的定义，而实际上返回一个自动向上转型为基类的引用。同时，还可以使用默认或者有参的构造器，只需要传递合适的参数给基类的构造器就可以了，如果内部类中需要使用外部的对象，那么作为参数传递时必须是final类型的，否则编译错误，但若只是传递给基类的构造器，而匿名类中没有直接 使用，则不要求变量一定是final型的。匿名类中不可能有命名的构造器，所有要想实现一些构造器的行为，则需要通过**实例初始化**。实例初始化的实际效果就是构造器，但是它受到了限制，不能重载实例化方法，因为你只有这一个构造器。
+
+匿名内部类与正规的继承相比有些限制，匿名内部类可以扩展类，也可以实现接口，但是不能两者兼备，而且也只能实现一个接口。
+
+###工厂方法的内部类实现
+
+工厂方法模式可以使用内部类更好的实现，服务实现的构造器可以使是private，并且也没有必要创建作为工厂的具名类（named class），而且一般只需要单一的工厂对象，因此声明为static域。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+import java.util.*;
+
+interface Service{
+     void method1();
+     void method2();
+}
+interface ServiceFactory{
+     Service getService();
+}
+class Implementation1 implements Service{
+     private Implementation1() {}
+     public void method1() { println("Implementation1 method1()"); }
+     public void method2() { println("Implementation1 method2()"); }
+     public static ServiceFactory factory =
+     new ServiceFactory(){
+          public Service getService(){
+               return new Implementation1();
+          }
+     };
+}
+class Implementation2 implements Service{
+     private Implementation2() {}
+     public void method1() { println("Implementation2 method1()"); }
+     public void method2() { println("Implementation2 method2()"); }
+     public static ServiceFactory factory =
+     new ServiceFactory(){
+          public Service getService(){
+               return new Implementation2();
+          }
+     };
+}
+public class Factories{
+     public static void serviceConsumer(ServiceFactory fact){
+          Service sv = fact.getService();
+          sv.method1();
+          sv.method2();
+     }
+     public static void main(String[] args){
+          serviceConsumer(Implementation1.factory);
+          serviceConsumer(Implementation2.factory);
+     }
+}
+{% endhighlight %}
+
+###嵌套类
+
+如果不需要内部类对象与其外部类之间有联系，可以声明为static，即**嵌套类**，他与普通嵌套类的区别是，普通的内部类对象隐式的保存了一个指向创建它的外部类对象的引用。而在嵌套类中这个引用就不存在了，这意味着：
+
+- 要创建嵌套类的对象，并不需要其外部类的对象。
+- 不能从嵌套类的对象中访问非静态的外围类对象。
+- 普通的内部类不能有static方法和字段，也不能包含嵌套类，嵌套类则可以。
+
+正常情况下，不能在接口内部放置任何代码，但嵌套类可以作为接口的一部分，接口中的类隐式的声明为public和static，这种方法可以用于测试，当然也不限于接口，嵌套类可以生成一个独立的类，运行这个类，只需要用`$`将外部类和内部类隔开（一些环境下`$`可能需要转义），执行起来就像这样`java OuterClassName\$InnerStaticClassName`。
+{% highlight java linenos %}
+public interface ClassInInterface{
+     void funtion();
+     class InnerClass implements ClassInInterface{
+          public void funtion() { println("InnerClass.funtion()"); }
+          public static void main(String[] args){
+               new InnerClass().funtion();
+          }
+     }
+}
+{% endhighlight %}
+
+###内部类的多层嵌套
+
+一个内部类可以嵌套多层，而且它能透明的访问它的所有外部类的所有成员。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+public class NestedClass{
+     private void className() { println(this.getClass().getSimpleName()); }
+     class A{
+          private void classA() { println(this.getClass().getSimpleName()); }
+          class B{
+               private void classB() { println(this.getClass().getSimpleName()); }
+               class C{
+                    void classC(){
+                         className();
+                         classA();
+                         classB();
+                         println(this.getClass().getSimpleName());
+                         //NestedClass.this.className();
+                         //A.this.classA();
+                         //B.this.classB();
+                         //println(this.getClass().getSimpleName());
+                    }
+               }
+          }
+     }
+     public static void main(String[] args){
+          NestedClass nc = new NestedClass();
+          NestedClass.A ca = nc.new A();
+          NestedClass.A.B cb = ca.new B();
+          NestedClass.A.B.C cc = cb.new C();
+          nc.className();
+          ca.classA();
+          cb.classB();
+          cc.classC();
+          NestedClass.A.B.C nabc = new NestedClass().new A().new B().new C();
+          //new NestedClass().new A().new B().new C().classC();
+     }
+}
+{% endhighlight %}
+
+###使用内部类的原因
+
+使用内部类最重要的原因是：每个内部类都能独立地继承自一个（接口的）实现，所以无论其外部类是否已经继承了某个（接口的）实现，对于内部类来说都没有影响。
+
+内部类使得多重继承的解决方案变得完整，接口只解决了部分问题，内部类允许继承多个非接口类型（类或者抽象类）。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+
+interface InterA {}
+interface InterB {}
+class ClassC {}
+abstract class ClassD {}
+class X implements InterA, InterB {}
+class Y implements InterA {
+     InterB makeB(){
+          return new InterB() {};
+     }
+}
+class Z extends ClassD {
+     InterA makeA(){
+          return new InterA() {};
+     }
+     InterB makeB(){
+          return new InterB() {};
+     }
+     ClassC makeC(){
+          return new ClassC() {};
+     }
+}
+public class MultiImpl{
+     static void takeA(InterA a) {}
+     static void takeB(InterB b) {}
+     static void takeC(ClassC c) {}
+     static void takeD(ClassD d) {}
+     public static void main(String[] args){
+          //interface
+          X x = new X();
+          Y y = new Y();
+          takeA(x);
+          takeA(y);
+          takeB(x);
+          takeB(y.makeB());
+          //class
+          Z z = new Z();
+          takeD(z);
+          takeA(z.makeA());
+          takeB(z.makeB());
+          takeC(z.makeC());
+     }
+}
+{% endhighlight %}
+
+内部类其他一些特性：
+
+- 内部类可以有多个实例，每个实例都有自己的状态信息，并且与外围类对象的信息相互独立。
+- 在单个外围类中，可以让多个内部类以不同方式实现同一个接口，或继承同一个类。
+- 创建内部对象的时刻不依赖与外围类对象的创建。
+- 内部类是一个独立的实体。
+
+**闭包**是一个课调用的对象，它记录了一些信息，这些信息来自于创建它的作用域。内部类是面向对象的闭包，它不仅包含外围类对象的信息，还自动拥有一个指向外围类对象的引用，在此作用域内，内部类有操作所有成员的权限，包括private。
+
+java没有直接提供闭包和回调的功能，但是通过内部类可以提供闭包的功能，而且是一种更安全、更灵活的解决方案。回调的价值就在于它的灵活性，即可以在运行时动态的决定需要调用什么方法。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+interface Incrementable{
+     void increment();
+}
+class Callee1 implements Incrementable{
+     private int i = 0;
+     public void increment(){
+          i++;
+          println(i);
+     }
+}
+class MyIncrement{
+     public void increment() { println("Other operation"); }
+     static void fun(MyIncrement mi) { mi.increment(); }
+}
+class Callee2 extends MyIncrement{
+     private int i = 0;
+     public void increment(){
+          super.increment();
+          i++;
+          println(i);
+     }
+     private class Closure implements Incrementable{
+          public void increment(){
+               Callee2.this.increment();
+          }
+     }
+     Incrementable getCallbackReference(){
+          return new Closure();
+     }
+}
+class Caller{
+     private Incrementable callbackReference;
+     Caller(Incrementable cbh) { callbackReference = cbh;}
+     void go() { callbackReference.increment(); }
+}
+public class Callbacks{
+     public static void main(String[] args){
+          Callee1 c1 = new Callee1();
+          Callee2 c2 = new Callee2();
+          MyIncrement.fun(c2);
+          Caller caller1 = new Caller(c1);
+          Caller caller2 = new Caller(c2.getCallbackReference());
+          println("===============");
+          caller1.go();
+          caller1.go();
+          println("===============");
+          caller2.go();
+          caller2.go();
+     }
+}
+{% endhighlight %}
+
+设计模式的关键是：**使变化的事物与不变的事物分开**。
+
+应用程序框架是一个很好地使用内部类的例子，应用程序是被设计用来解决特定问题的一个类或一组类，具体的某个应用程序总是继承一个或多个类，并覆盖某些方法，以实现个性化的定制，这也是**模板方法模式**的一个例子。模板方法包含算法的基本结构，并且会调用一个或多个可覆盖的方法，以完成算法的动作。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+import java.util.*;
+abstract class Event{
+     private long eventTime;
+     protected final long delayTime;
+     public Event(long delayTime){
+          this.delayTime = delayTime;
+          start();
+     }
+     public void start(){
+          eventTime = System.nanoTime()+delayTime;
+     }
+     public boolean ready(){
+          return System.nanoTime()>=eventTime;
+     }
+     public abstract void action();
+}
+class Controller{
+     private List<Event> eventList = new ArrayList<Event>();
+     public void addEvent(Event e) { eventList.add(e); }
+     public void run(){
+          while(eventList.size()>0)
+               for(Event e: new ArrayList<Event>(eventList))
+                    if(e.ready()){
+                         println(e);
+                         e.action();
+                         eventList.remove(e);
+                    }
+     }
+}
+class GreenhouseControls extends Controller{
+     private boolean light = false;
+     private boolean water = false;
+     private String thermostat = "Day";
+     public class LightOn extends Event{
+          public LightOn(long delayTime) { super(delayTime); }
+          public void action(){
+               //hardware control code
+               //turn on the light
+               light = true;
+          }
+          public String toString() { return "Light is on"; }
+     }
+     public class LightOff extends Event{
+          public LightOff(long delayTime) { super(delayTime); }
+          public void action(){
+               //hardware control code
+               //turn off the light
+               light = false;
+          }
+          public String toString() { return "Light is off"; }
+     }
+     public class WaterOn extends Event{
+          public WaterOn(long delayTime) { super(delayTime); }
+          public void action(){
+               //hardware control code
+               //turn on the water
+               water = true;
+          }
+          public String toString() { return "Water is on"; }
+     }
+     public class WaterOff extends Event{
+          public WaterOff(long delayTime) { super(delayTime); }
+          public void action(){
+               //hardware control code
+               //turn off the water
+               water = false;
+          }
+          public String toString() { return "Water is off"; }
+     }
+     public class ThermostatNight extends Event{
+          public ThermostatNight(long delayTime) { super(delayTime); }
+          public void action(){
+               //hardware control code
+               thermostat = "Night";
+          }
+          public String toString() { return "Thermostat is on night setting"; }
+     }
+     public class ThermostatDay extends Event{
+          public ThermostatDay(long delayTime) { super(delayTime); }
+          public void action(){
+               //hardware control code
+               thermostat = "Day";
+          }
+          public String toString() { return "Thermostat is on day setting"; }
+     }
+     public class Bell extends Event{
+          public Bell(long delayTime) { super(delayTime); }
+          public void action(){
+               addEvent(new Bell(delayTime));
+          }
+          public String toString() { return "Bing!"; }
+     }
+     public class Restart extends Event{
+          private Event[] eventList;
+          public Restart(long delayTime, Event[] eventList) {
+               super(delayTime);
+               this.eventList = eventList;
+               for(Event e: eventList){
+                    addEvent(e);
+               }
+          }
+          public void action(){
+               for(Event e: eventList){
+                    e.start(); //Rerun each Event
+                    addEvent(e);
+               }
+               start(); //Rerun this event
+               addEvent(this);
+          }
+          public String toString() { return "Restarting system"; }
+     }
+     public static class Terminate extends Event{
+          public Terminate(long delayTime) { super(delayTime); }
+          public void action(){
+               System.exit(0);
+          }
+          public String toString() { return "Terminating"; }
+     }
+}
+public class ControlFramework{
+     public static void main(String[] args){
+          GreenhouseControls gc = new GreenhouseControls();
+          //Configuration
+          gc.addEvent(gc.new Bell(900));
+          Event[] eventList = {
+               gc.new ThermostatNight(0),
+               gc.new LightOn(200),
+               gc.new LightOff(400),
+               gc.new WaterOn(600),
+               gc.new WaterOff(800),
+               gc.new ThermostatDay(1400)
+          };
+          gc.addEvent(gc.new Restart(200, eventList));
+          if(args.length == 1)
+               gc.addEvent(
+                    new GreenhouseControls.Terminate(
+                         new Integer(args[0])));
+          gc.run();
+     }
+}
+{% endhighlight %}
+
+这个例子中还用到了**命令设计模式**，即“将一个请求封装为一个对象，从而使你可用不同的请求对客户进行参数化；对请求排队或记录请求日志，以及支持可取消的操作”。在evenList中每一个请求被封装成了对象。
+
+###内部类的继承
+
+内部类的构造器必须连接到指向其外围类对象的引用，要继承，指向外围类对象的引用必须被初始化，而在导出类中不存在可连接的默认对象必须使用特殊的语法`enclosingClassReference.super();`。
+{% highlight java linenos %}
+class WithInner{
+     class Inner {}
+}
+public class InheritInner extends WithInner.Inner{
+     InheritInner(WithInner wi) { wi.super(); }
+     public static void main(String[] args){
+          WithInner wi = new WithInner();
+          InheritInner ii = new InheritInner(wi);
+     }
+}
+{% endhighlight %}
+
+继承自某个外围类时，内部类并没有发生变化，这说明内部类和它的外围类是相互独立的，各自在自己的命名空间。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+class Egg{
+     private Yolk y;
+     protected class Yolk{
+          public Yolk() { println("Egg.Yolk()"); }
+     }
+     public Egg(){
+          println("New Egg()");
+          y = new Yolk();
+     }
+}
+public class BigEgg extends Egg{
+     public class Yolk{
+          public Yolk() { println("BigEgg.Yolk()"); }
+     }
+     public static void main(String[] args){
+          new BigEgg();
+     }
+}
+{% endhighlight %}
+
+###局部内部类
+
+可以在代码块内创建内部类，即**局部内部类**。局部内部类不能有访问说明符，因为它不是外围类的一部分，但是它可以访问当前代码块内的常量，以及外围类的所有成员。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+interface Couter{
+     int next();
+}
+public class LocalInnerClass{
+     private int count = 0;
+     Couter getCounterLocal(final String name){
+          class LocalCounter implements Couter{
+               public LocalCounter() { println("LocalCounter()"); }
+               public int next() {
+                    print(name);
+                    return count++;
+               }
+          }
+          return new LocalCounter();
+     }
+     Couter getCounterAnon(final String name){
+          return new Couter(){
+               { println("Counter()"); }
+               public int next(){
+                    print(name);
+                    return count++;
+               }
+          };
+     }
+     public static void main(String[] args){
+          LocalInnerClass lic = new LocalInnerClass();
+          Couter
+          c1 = lic.getCounterLocal("Local inner "), 
+          c2 = lic.getCounterAnon("Anon inner ");
+          for(int i=0; i<5; i++)
+               println(c1.next()); 
+          for(int i=0; i<5; i++)
+               println(c2.next());
+     }
+}
+{% endhighlight %}
+
+这里用局部内部类和匿名内部类实现了同样的功能，局部内部类在代码块以外是不可见的，这点和匿名内部类是类似的（匿名内部类本来就没有名字），但不同的是，局部内部类可以提供一个已命名的构造器，可以重载构造器，而匿名内部类只能用实例初始化。另外，局部内部类还可以提供不止一个的构造器。
+
+每个类都会产生一个.class文件，其中包含了创建该类的全部信息（此信息产生一个“meta-class”，叫做**class对象**），内部类生成的.class文件是以其外围类名，加上`$`，在加上内部类名而命名的，如果是匿名类名，则会以数字代替。
+
+##第11章 持有对象
+
+
 <div class="alert alert-block alert-warn form-inline" style="text-align:center; vertical-align:middle; font-size: 16px; font-weight:300;">To be continue!</div>
