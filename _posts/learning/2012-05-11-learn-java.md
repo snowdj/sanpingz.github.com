@@ -1692,5 +1692,1019 @@ public class LocalInnerClass{
 
 ##第11章 持有对象
 
+复杂的程序中往往是在程序运行时才根据知道的某些条件去创建新对象，因此需要提供某种方法来保存对象，数组是最简单的保存对象的方式，但是数组有一些限制，使得它更适合保存一些基本数据类型，在更一般的情况下，还是使用**容器类**，或者叫集合类，其中基本的类型是List、Set、Queue和Map。
+
+容器使用泛型可以防止错误的类型放入容器中，用尖括号括起来的就是**类型参数**（可以多个），同时在元素取出时类型转换也不再是必须的了。
+
+###容器的基本概念
+
+java容器类的用途是“保存对象”：
+
+- **Collection**，一个独立的序列，元素服从一条或多条规则。List必须按照插入的顺序保存元素；Set不能有重复元素；Queue按照排队规则来确定对象产生的顺序（一端插入，另一端移除）。
+- *Map*，一组成对的“key-value”对象，允许使用键来查找值，可以称之为“字典”。ArrayList允许使用数字来查找对象，也被称为“关联数组”，因为它将某些对象与另外一些对象关联在一起。
+
+创建容器很容易，如`List<Apple> list = new ArrayList<Apple>()`，这里使用了向上转型，其目的在于如果你决定修改实现，只需要在创建处修改，就像这样`List<Apple> list = new LinkedList<Apple>()`。当然如果使用了某些容器特殊的功能，就不能将他们转型为通用的接口。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+import java.util.*;
+class Snow {}
+class Power extends Snow {}
+class Crusty extends Snow {}
+class Slush extends Snow {}
+class Light extends Power {}
+class Heavy extends Power {}
+public class SimpleCollection{
+     public static void main(String[] args){
+          Collection<Integer> collection = new ArrayList<Integer>(Arrays.asList(1,2,3,4,5));
+          Integer[] more = {6,7,8,9,10};
+          collection.addAll(Arrays.asList(more));
+          Collections.addAll(collection, 11,12,13,14,15);
+          Collections.addAll(collection, more);
+          List<Integer> list = Arrays.asList(0,1,2,3,4);
+          list.set(0,5);
+          //!list.add(5); //Runtime error
+          for(Integer in : collection)
+               print(in+" ");
+          println();
+
+          List<Snow> snow = Arrays.asList(new Power(), new Crusty(), new Slush());
+          //!List<Snow> light = Arrays.asList(new Light(), new Heavy());
+          List<Snow> empty = new ArrayList<Snow>();
+          Collections.addAll(empty, new Light(), new Heavy());
+          List<Snow> heavy = Arrays.<Snow>asList(new Light(), new Heavy());
+     }
+}
+{% endhighlight %}
+
+`Collection.addAll()`只能接受另一个Collection对象作为参数，不如`Arrays.asList()`和`Collection.addAll()`灵活；`Arrays.asList()`返回的实际上是一个数组，所以在使用上会有一些限制，比如不能调整大小。`Arrays.<Snow>asList()`是一个显式的**类型参数说明**。Map只能用另外一个Map实现自动初始化。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+import java.util.*;
+public class PrintContainers{
+     public static Collection fill(Collection<String> collection){
+          collection.add("rat");
+          collection.add("cat");
+          collection.add("dog");
+          collection.add("dog");
+          return collection;
+     }
+     public static Map fill(Map<String,String> map){
+          map.put("rat", "Fuzzy");
+          map.put("cat", "Rags");
+          map.put("dog", "Bosco");
+          map.put("dog", "Spot");
+          return map;
+     }
+     public static void main(String[] args){
+          println(fill(new ArrayList<String>()));
+          println(fill(new LinkedList<String>()));
+          println(fill(new HashSet<String>()));
+          println(fill(new TreeSet<String>()));
+          println(fill(new LinkedHashSet<String>()));
+          println(fill(new HashMap<String, String>()));
+          println(fill(new TreeMap<String, String>()));
+          println(fill(new LinkedHashMap<String, String>()));
+     }
+}
+{% endhighlight %}
+
+Set中，HashSet获取元素的速度最快；TreeSet按照比较结果的升序排列；LinkedHashSet按照添加的顺序保存对象。HashMap、TreeMap和LinkedHashMap与此类似。
+
+List可以保证特定的序列顺序，同时可以在中间插入和移除元素：
+
+- ArrayList，擅长随机访问，中间插入移除速度较慢。
+- LinkedList，优化了顺序访问，能以较低的代价在List中间插入移除元素，但是随机访问较慢，LinkedList实现了Queue的接口，所以能进行一些队列的操作。
+
+###迭代器
+
+**迭代器**（也是一种设计模式），是一个对象，它的工作是遍历并选择序列中的对象，而客户端程序员不用关心容器的具体信息。
+
+Iterator的作用是：
+
+- 使用`iterator()`方法返回一个Iterator，Iterator准备返回序列的第一个元素。
+- 使用`next()`获得下一个元素。
+- 使用`hasNext()`检查是否还有元素。
+- 使用`remove()`移除新近返回的对象（在`next()`之后调用）。
+{% highlight java linenos %}
+List<String> list = new ArrayList<String>(Arrays.asList("rat","cat","dog"));
+          Iterator<String> it = list.iterator();
+          while(it.hasNext()){
+               String str = it.next();
+               print(str+" ");
+               it.remove();
+          }
+          println(list.size());
+{% endhighlight %}
+
+java中有Stack，但是LinkedList同样可以实现栈的所有功能，遗憾的是java中并没有公共的Stack接口，这与其他容器比起来似乎缺少了一致性。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+import java.util.*;
+public class Stack<T>{
+     private LinkedList<T> storage = new LinkedList<T>();
+     public void push(T v) { storage.addFirst(v); }
+     public T peek() { return storage.getFirst(); }
+     public T pop() { return storage.removeFirst(); }
+     public boolean empty() { return storage.isEmpty(); }
+     public String toString() { return storage.toString(); }
+     public static void main(String[] args){
+          Stack<String> stack = new Stack<String>();
+          stack.push("Rat");
+          println(stack.peek());
+          stack.pop();
+          println(stack.empty());
+          java.util.Stack<String> sk = new java.util.Stack<String>();
+          sk.push("Rat");
+          println(sk.peek());
+          sk.pop();
+          println(sk.empty());
+     }
+}
+{% endhighlight %}
+
+Set具有和Collection完全一样的接口，只是行为不同而已（继承与多态思想的典型应用：表现的行为不同）。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+import java.util.*;
+public class Statistics{
+     public static void main(String[] args){
+          Random rand = new Random();
+          Map<Integer, Integer> m = new TreeMap<Integer, Integer>();
+          for(int i=0; i<1000; i++){
+               int r = rand.nextInt(20);
+               Integer frq = m.get(r);
+               m.put(r, frq == null ? 1:frq+1);
+          }
+          println(m);
+     }
+}
+{% endhighlight %}
+
+LinkedList具有Stack的功能，同时又实现了Queue（队列）接口。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+import java.util.*;
+public class QueueDemo{
+     public static void main(String[] args){
+          Queue<Character> queue = new LinkedList<Character>();
+          for(char c: "qwertyuiop".toCharArray())
+               queue.offer(c);
+          while(queue.peek() != null)
+               print(queue.remove()+" ");
+          println();
+          PriorityQueue<String> pq = new PriorityQueue<String>(Arrays.asList("qwertyuiop".split("")));
+          while(pq.peek() != null)
+               print(pq.remove()+" ");
+          println();
+     }
+}
+{% endhighlight %}
+
+任何实现了Iterable接口（包含`iterator()`方法）的类都可以用于foreach语句，数组可以用佛reach，但是不代表数组也是一个Iterable。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+import java.util.*;
+
+public class AdapterMethodIdiom implements Iterable<String>{
+     protected String[] words = "Beautiful is better than ugly".split(" ");
+     public AdapterMethodIdiom() {}
+     public AdapterMethodIdiom(String[] words) { this.words = words; }
+     public Iterator<String> iterator(){
+          return new Iterator<String>(){
+               private int index = 0;
+               public boolean hasNext(){
+                    return index < words.length;
+               }
+               public String next() { return words[index++]; }
+               public void remove(){
+                    throw new UnsupportedOperationException();
+               }
+          };
+     }
+     public Iterable<String> reversed(){
+          return new Iterable<String>(){
+               public Iterator<String> iterator(){
+                    return new Iterator<String>(){
+                         private int index = words.length-1;
+                         public boolean hasNext(){
+                              return index > -1;
+                         }
+                         public String next() { return words[index--]; }
+                         public void remove(){
+                              throw new UnsupportedOperationException();
+                         }
+                    };
+               }
+          };
+     }
+     public static void main(String[] args){
+          for(String s:new AdapterMethodIdiom())
+               print(s+" ");
+          println();
+          for(String s:new AdapterMethodIdiom().reversed())
+               print(s+" ");
+          //for(Map.Entry entry: System.getenv().entrySet()){
+          //     println(entry.getKey()+": "+entry.getValue());
+          //}
+     }
+}
+{% endhighlight %}
+
+**适配器方法惯用法**将Iterable接口用于其他接口。
+
+##第12章 用异常处理错误
+
+程序的编译期并不能找出所有的错误，余下的错误必须在运行期间解决，这就需要错误源能通过某种方式把错误信息传递给某个接受者，该接受者知道如何正确处理这个问题，这就是**异常处理机制**，异常处理的初衷是为了方便程序员处理错误，一些无关紧要的错误可以忽略掉。
+
+异常处理可以把异常情形和普通问题相区分，异常最重要的方面之一就是如果发生，它们将不允许程序沿正常的路径继续走下去。所有的异常都有两个构造器：一个默认构造器，一个接受字符串作为参数，异常的根类为Throwable。
+
+try块是一个**监控区域**，可以捕获到异常，并由经跟其后的catch字句来处理（可以有多个），每个catch字句就像一个仅接受一个特殊参数的方法，只有匹配的catch字句才能执行（匹配不是绝对的匹配，只是找出“最近”的处理程序，子类的对象也可以匹配基类的处理程序，，Exception就可能屏蔽掉所有它之后的处理程序），而如果有finally语句，它总会被执行（在有break、continue以及return时也会执行）。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+import java.util.*;
+
+public class MultiReturns{
+     public static void fun(int i){
+          println("Initialization");
+          try{
+               println("Point 1");if(i==1) return;
+               println("Point 2");if(i==2) return;
+               println("Point 3");if(i==3) return;
+               println("Point 4");if(i==4) return;
+               println("End"); return;
+          }finally{
+               println("Performing cleanup");
+          }
+     }
+     public static void main(String[] args){
+          for(int i=0; i<5; i++) fun(i);
+     }
+}
+{% endhighlight %}
+
+异常处理理论上有两种基本模型：java（还有C++）支持**终止模型**，这种模型假设程序无法返回到异常发生的地方继续执行，一旦异常抛出，表明错误已无法挽回；另一种是**恢复模型**，异常处理程序的工作是修正错误，然后重新尝试出问题的方法。
+
+###创建自定义异常
+
+自定义异常必须从已有的异常类继承，最好是选择意思相近的，还可以用`java.util.logging`工具将异常输出到日志中。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+import java.util.logging.*;
+import java.io.*;
+class SimpleException extends Exception{
+     public SimpleException() {}
+     public SimpleException(String msg) { super(msg); }
+}
+class LoggingException extends Exception{
+     private static Logger logger = Logger.getLogger("LoggingException");
+     public LoggingException() {
+          StringWriter trace = new StringWriter();
+          printStackTrace(new PrintWriter(trace));
+          logger.severe(trace.toString());
+     }
+}
+public class MyException{
+     public void fun() throws SimpleException{
+          println("Throw SimpleException from fun()");
+          throw new SimpleException();
+     }
+     public void gun() throws SimpleException{
+          println("Throw SimpleException from gun()");
+          throw new SimpleException("Originated in gun()");
+     }
+     public void hun() throws LoggingException{
+          println("Throw LoggingException from hun()");
+          throw new LoggingException();
+     }
+     public static void main(String[] args){
+          MyException me = new MyException();
+          try{
+               me.fun();
+          }catch(SimpleException se){
+               println("Oops, Caught it!");
+          }
+          try{
+               me.gun();
+          }catch(SimpleException se){
+               se.printStackTrace(System.out);
+               //se.printStackTrace();
+          }
+          try{
+               me.hun();
+          }catch(LoggingException le){
+               System.err.println("Caught "+le);
+          }
+     }
+}
+{% endhighlight %}
+
+使用Exception可以捕获所有异常，因为它是异常的基类（跟编程相关），`printStackTrace()`提供的信息可以通过`getStackTrace()`方法直接访问，返回一个由栈轨迹中的元素组成的数组。异常可以被重新抛出（`throw e`），这样会把异常抛给上一级环境中的异常处理程序。常常需要在捕获一个异常以后抛出另外一个异常，并且希望把原始异常的信息保存下来，这可以使用**异常链**。现在所有的Throwable子类的构造器都可以接受一个cause对象（用来表示原始异常）作为参数，有三个基本的异常类提供带cause参数的构造器，即Error、Exception和RuntimeException，如果要把其他类型的异常链接起来，需要使用`initCause()`方法。
+
+###Java标准异常
+
+Throwable对象分为两种类型（Throwable的子类）：**Error**是编译时和系统错误；**Exception**是可以被抛出的基本类型。运行时异常（**RuntimeException**）是个特列，他们自动被JVM抛出，不用自己捕获。
+
+java中异常的限制也具有继承性，即子类覆盖方法只能抛出在基类方法的异常说明列出的那些异常，但是异常限制对构造器不起作用，也不能基于异常说明来重载方法，因为异常说明不属于方法类型的一部分。应该时刻注意“如果异常发生了，所有的东西都能被正确清理吗”，特别是在构造器中，需要注意，一般不要用finally来清理，因为它总会执行，比较安全的做法是使用嵌套的try字句。使用通用的清理惯用法基本规则是：**在创建需要清理的对象之后，立即进入一个try-finally语句块**。
+
+异常处理的一个重要原则是**只有在你知道如何处理的情况下才捕获异常**，异常处理的一个重要目的就是把错误处理的代码和错误发生的地点相分离，错误代码的处理可以放在另一段代码中。
+
+java中**被检查的异常**可能会使问题变得复杂，因为它强制你在可能还没有准备好处理异常的时候被迫加上catch子句，如果不处理则会引发“吞食则有害”的问题。简单的程序可以将异常打印到控制台，但这不是通用的做法，一个比较好的办法是把**被检查的异常**转化为**不检查的异常**，即把“检查的异常”包装进`RuntimeException`，而且异常链保证你的异常不会丢失，你可以在合适的地方用`getCause()`捕获并处理特定的异常。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+import java.util.logging.*;
+import java.io.*;
+class WrapCheckedException{
+     void throwRuntimeException(int type){
+          try{
+               switch(type){
+                    case 0: throw new FileNotFoundException();
+                    case 1: throw new IOException();
+                    case 2: throw new RuntimeException("Where am I");
+                    default: return;
+               }
+          }catch(Exception e){
+               throw new RuntimeException(e);
+          }
+     }
+}
+class SomeOtherException extends Exception {}
+public class TurnoffChecking{
+     public static void main(String[] args){
+          WrapCheckedException wce = new WrapCheckedException();
+          wce.throwRuntimeException(3);
+          for(int i=0; i<4; i++)
+               try{
+                    if(i<3) wce.throwRuntimeException(i);
+                    else throw new SomeOtherException();
+               }catch(SomeOtherException se){
+                    println("SomeOtherException: "+se);
+               }catch(RuntimeException re){
+                    try{
+                         throw re.getCause();
+                    }catch(FileNotFoundException fe){
+                         println("FileNotFoundException: "+fe);
+                    }catch(IOException ie){
+                         println("IOException: "+ie);
+                    }catch(Throwable te){
+                         println("Throwable: "+te);
+                    }
+               }finally{
+                    println("Handled all exception!");
+               }
+     }
+}
+{% endhighlight %}
+
+异常处理指南：
+
+1. 在适当的级别处理问题（在知道该如何处理时才捕获）。
+2. 解决问题并且重新调用产生异常的方法。
+3. 进行少许修补，然后绕过异常经常发生的地方继续执行。
+4. 用别的数据进行计算，以代替方法预计会返回的值。
+5. 把当前环境下能做的事情尽量做完，然后把相同的异常重抛到更高层。
+6. 把当前环境下能做的事情尽量做完，然后把相同的异常抛到更高层。
+7. 终止程序。
+8. 进行简化。
+9. 让类库和程序更安全。
+
+##第13章 字符串
+
+###字符串基本操作
+
+String对象是不可变的，每一个试图修改字符串的方法实际上都是生成个一个新的字符串，所以String对象是只读的。java不允许程序员重载任何的运算符，用于String的运算符只有重载过的“+”和“=+”。StringBuilder是一个更高效的处理字符串的类，在复杂的字符串操作中可以使用以提高效率。
+
+Formatter类提供了格式化功能，格式化的格式为`%[argument_index$][flags][width][.precision]conversion`。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+import java.util.*;
+import java.io.*;
+import java.math.*;
+class AboutString{
+     public String toString(){
+          return "this: "+this+"\n";
+     }
+     public static void main(String[] args){
+          String s = "spam";
+          String ss = s.toUpperCase();
+          println("s: "+s+", ss: "+ss);
+          println("s+ss: "+(s+ss));
+          s+=ss;
+          println("s: "+s+", ss: "+ss);
+          StringBuilder sb = new StringBuilder("[");
+          for(int i=0; i<20; i++){
+               sb.append(new Random().nextInt(20));
+               sb.append(", ");
+          }
+          sb.delete(sb.length()-2, sb.length());
+          sb.append("]");
+          println(sb);
+          println("charAt(): "+s.charAt(1));
+          println("toCharArray(): "+s.toCharArray());
+          //println(new AboutString());
+          int x = 5;
+          double y = java.lang.Math.PI;
+          String z = "Format out: ";
+          System.out.println(z+"["+x+", "+y+"]");
+          System.out.printf("%s[%d, %f]\n", z, x, y);
+          System.out.format("%s[%d, %f]\n", z, x, y);
+          PrintStream outAlias = System.out;
+          Formatter ft = new Formatter(outAlias);
+          ft.format("%s[%d, %f]\n", z, x, y);
+          ft.format("%-10s %5s %-10s\n", "Item", "Qty", "Price");
+          ft.format("%-10s %5d %-10.2f\n", "Jack", 4, 10.87545);
+          ft.format("%-10s %5h %-10.4e\n", "Rose", 4231, 10875.45);
+          ft.format("%-10b %5x %-10d\n", "Calvin", 42, new BigInteger("32442424042412429487"));
+          try{
+               StringBuilder sbr = new StringBuilder();
+               int n = 0;
+               File file = new File("AboutString.class").getAbsoluteFile();
+               BufferedInputStream bf = new BufferedInputStream(new FileInputStream(file));
+               byte[] bt = new byte[bf.available()];
+               bf.read(bt);
+               bf.close();
+               for(byte b:bt){
+                    if(n%16==0) sbr.append(String.format("%05X: ", n));
+                    sbr.append(String.format("%02X ", b));
+                    n++;
+                    if(n%16==0) sbr.append("\n");
+                    }
+                    sbr.append("\n");
+                    println(sbr);
+               }catch(Exception e){}
+          }
+}
+{% endhighlight %}
+
+###正则表达式
+
+**正则表达式**是一种强大而灵活的文本处理工具，能够处理诸如：匹配、选择、编辑以及验证等字符串相关的问题。
+
+java中正则表达式中的反斜杠有一些不同的处理，其他语言中“\\”表示插入一个普通的反斜杠，而java中表示这就是一个正则表达式中表示特殊含义的反斜杠，要插入一个普通的反斜杠，应该是“\\\\”，但是正常的换行、制表符之类的东西还是只需要单个反斜杠`\n\t`。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+import java.util.*;
+public class StringRegular{
+     public static void main(String[] args){
+          println("-1234".matches("-?\\d+"));
+          println("1234".matches("-?\\d+"));
+          println("+1234".matches("-?\\d+"));
+          println("+1234".matches("(-|\\+)?\\d+"));
+          println(Arrays.toString("I'm CEO, bitch!".split("\\W+")));
+          println("I'm CEO, bitch!".replaceAll("b\\w+", "boy"));
+     }
+}
+{% endhighlight %}
+
+###创建正则表达式
+
+**量词**描述了一个模式吸收输入文本的方式：
+
+- 贪婪型，为所有可能的模式搜索尽可能多的匹配项。
+- 勉强型，用问号指定，匹配满足模式所需的最少字符数。
+- 占有型，java专有，以加号来指定，更高级，常用来防止正则表达式失控。
+
+String类对正则表达式的支持有限，java更强大的正则表达式支持需要`java.util.regex`包，产生的Pattern对象和Matcher对象可以实现很多功能。最简单的使用方法是先调用静态的`Pattern.complie()`编译你的正则表达式，然后在使用Pattern对象的`matcher()`方法来匹配你的输入，还可以使用`split()`方法将输入字符串根据正则表达式断开成字符串数组。Pattern类的`compile()`方法还可以接受一个标记参数，以调整匹配的行为，可以使用`|`组合多个。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+import java.util.regex.*;
+import java.util.*;
+public class RegularExpression{
+     public static void main(String[] args){
+          String regex = "\\w+";
+          String str = "There should be one-- and preferably only one --obvious way to do it.";
+          //Pattern p = Pattern.compile(regex);
+          //Matcher m = p.matcher(str);
+          Matcher m = Pattern.compile(regex).matcher(str);
+          while(m.find()){
+               println("Match "+m.group()+" at "+m.start()+"-"+(m.end()-1));
+          }
+          println(Arrays.toString(Pattern.compile("\\-\\-").split(str,3)));
+     }
+}
+{% endhighlight %}
+
+###使用正则表达式进行扫扫描
+
+可以使用Scanner类或者正则表达式进行文件，或者字符串扫描，以及分词等操作，StringTokenizer也能进行分词，但基本上被淘汰了。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+import java.util.*;
+import java.util.regex.*;
+import java.io.*;
+public class SimpleRead{
+     public static BufferedReader input = new BufferedReader(
+          new StringReader("Sir Robin of Camelot\n22 1.61803"));
+     public static void main(String[] args){
+          try{
+               println("What's your name?");
+               String name = input.readLine();
+               println(name);
+               println("How old of you, and what's your favorite double?");
+               String numbers = input.readLine();
+               println(numbers);
+          }catch(IOException ie){
+               println("IOException");
+          }
+          String data =
+          "Calvin\n"+
+          "zhangsp@163.com\n"+
+          "24\n"+
+          "12619242230";
+          Scanner scanner = new Scanner(data);
+          String reg = "^[a-zA-Z][\\w\\.-]*[a-zA-Z0-9]@[a-zA-Z0-9][\\w\\.-]*[a-zA-Z0-9]\\.[a-zA-Z][a-zA-Z\\.]*[a-zA-Z]$";
+          Matcher m = Pattern.compile(reg).matcher("");
+          while(scanner.hasNext()){
+               String line = scanner.nextLine();
+               m.reset(line);
+               print(line+" ");
+               try{
+                    print("e-mail: "+m.group(1)+" ");
+               }catch(IllegalStateException ie){
+                    println(ie.getMessage());
+               }
+          }
+          println();
+          reg="\\d*";
+          String age=null;
+          String phone=null;
+          while(scanner.hasNext(reg)){
+               scanner.next(reg);
+               MatchResult match = scanner.match();
+               age = match.group(1);
+               phone = match.group(2);
+          }
+          println("age: "+age);
+          println("phone: "+phone);
+          //scanner = new Scanner("Calvin, 24, zhangsp@163.com, 13619242230");
+          scanner = new Scanner("13, 24, 163, 136");
+          println(scanner.delimiter());
+          scanner.useDelimiter("\\s*,\\s*");
+          while(scanner.hasNextInt()){
+               //println("age: "+scanner.nextInt());
+               //println("phone: "+scanner.nextInt());
+               println(scanner.nextInt());
+          }
+         
+     }
+}
+{% endhighlight %}
+
+##第14章 类型信息
+
+**运行时类型信息（RTTI）**使得你可以在程序运行时发现和使用类型信息，java中在运行时识别对象和类型信息有两种方式，即传统的RTTI（假定我们在编译时已经知道了所有的类型）和**反射**机制（允许我们在运行时发现和使用类的信息）。
+
+面向对象编程的基本目的是：**让代码只操纵对基类的引用**，这样就很容易扩展新的类，而不会影响的原来的代码。
+
+在java中，所有的类型转换都是在运行时进行类型正确性检查的。容器中的对象是以Object对象来持有的，在运行时由RTTI类型转换操作转换为声明的类型参数类型，在编译时由容器和java的泛型系统来确保这一点，而具体的类型转换由多态机制来实现。
+
+**Class对象**包含了与类有关的信息，用来创建类的所有常规对象，每个类都有一个Class对象，java就是使用Class对象来执行RTTI的，而所有的Class对象都属于同一个Class类。所有的类都是在第一次使用时动态加载到JVM中的，使用new操作符创建的新对象，实际上是对类的静态成员的引用，这是因为它调用了静态的构造器。
+{% highlight java linenos %}
+package typeinfo.demo;
+import static com.mceiba.util.Print.*;
+
+interface HasBatteries {}
+interface Waterproof {}
+interface Shoots {}
+class Toy{
+     Toy() {}
+     Toy(int i) {}
+}
+class FancyToy extends Toy implements HasBatteries, Waterproof, Shoots{
+     FancyToy() { super(1); }
+}
+public class ClassDemo{
+     static void printInfo(Class cc){
+          println("Class name: "+cc.getName()+" is interface ? ["+cc.isInterface()+"]");
+          println("Simple name: "+cc.getSimpleName());
+          println("Canonical name: "+cc.getCanonicalName());
+     }
+     public static void main(String[] args){
+          Class c = null;
+          try{
+               c = Class.forName("typeinfo.demo.FancyToy");
+          }catch(ClassNotFoundException e){
+               println("Can't find FancyToy");
+               System.exit(1);
+          }
+          printInfo(c);
+          for(Class face: c.getInterfaces()) printInfo(face);
+          Class up = c.getSuperclass();
+          Object obj = null;
+          try{
+               obj = up.newInstance();
+          }catch(InstantiationException e){
+               println("Cannot instantiate");
+               System.exit(1);
+          }catch(IllegalAccessException e){
+               println("Cannot access");
+               System.exit(1);
+          }
+          printInfo(obj.getClass());
+     }
+}
+{% endhighlight %}
+
+除了使用`Class.forName()`，`getClass()`，还可以使用**类字面常量**来生成对Class对象的引用，调用格式为`[className].class`，适用于普通类、接口、数组以及基本数据类型（**字面量**是在源代码级别表示一个对象或者数值的字符串）。对于基本类型的包装类还有一个**TYPE**字段，也是一个引用，指向对应的基本类型的Class对象，如`Boolean.TYPE`等价于`boolean.class`。它更简单、更安全，因为它在编译时就检查错误（不用放在try字句中），而且根除了`forName()`方法的调用，所以更高效。
+
+java中为了使用类而进行的准备工作包括三个步骤：
+
+1. 加载，由类加载器执行，查找字节码（通常在classpath指定的路径中查找），并从字节码中创建一个Class对象。
+2. 链接，验证类中的字节码，为静态域分配存储空间，必要时解析这个类创建的对其他类的所有引用。
+3. 初始化，如果该类具有超类，则对其初始化，执行静态初始化器和静态初始化块。
+
+初始化被延迟到了对静态方法或者非常数静态域进行首次引用时才执行，而使用`.class`创建对Class对象的引用时不会自动初始化该Class对象。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+import java.util.*;
+class Initable1{
+     static final int staticFinal1 = 147;
+     static final int staticFinal2 = ClassInitialization.rand.nextInt(1000);
+     static { println("Initializing Initable1"); }
+}
+class Initable2{
+     static int staticNonFinal = 247;
+     static { println("Initializing Initable2"); }
+}
+class Initable3{
+     static int staticNonFinal = 347;
+     static { println("Initializing Initable3"); }
+}
+public class ClassInitialization{
+     public static Random rand  =new Random();
+     public static void main(String[] args) throws Exception{
+          Class initable1 = Initable1.class;
+          println("After creating Initable1 ref");
+          println(Initable1.staticFinal1);
+          println(Initable1.staticFinal2);
+          println(Initable2.staticNonFinal);
+          Class initable3 = Class.forName("Initable3");
+          println("After creating Initable3 ref");
+          println(Initable3.staticNonFinal);
+     }
+}
+{% endhighlight %}
+
+仅使用`.class`来获取对象的引用不会发生初始化，而`forName()`就会立即进入初始化。static final的“编译期常量”不需要对类进行初始化就可以读取，但是对static final的非编译期常量的调用就会引发强制的初始化。只是static而不是final型的域在读取之前要进行链接和初始化。
+
+Class引用可以指向某个Class对象，普通的类指向可以被重新指向任何其他的Class对象，因为它就如同一个基类的对象，可以将任何的子类对象转型，这样有时是有害的，因为它不会产生编译器的警告信息（本来就是合法的），但是可以使用泛型的语法来避免这一点，而且可以使用`?`通配符，以及通配符跟extends的组合来限定自己或者子类的类型。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+import java.util.*;
+class CountedInteger{
+     private static long counter;
+     private final long id = counter++;
+     //public CountedInteger(int id) {};
+     public String toString() { return Long.toString(id); }
+}
+class FilledList<T>{
+     private Class<T> type;
+     public FilledList(Class<T> type) { this.type = type; }
+     public List<T> create(int nElements){
+          List<T> result = new ArrayList<T>();
+          try{
+               for(int i=0; i<nElements; i++)
+                    result.add(type.newInstance());
+          }catch(Exception e){
+               throw new RuntimeException(e);
+          }
+          return result;
+     }
+}
+public class GenericClassRef{
+     public static void main(String[] args) throws Exception{
+          Class intClass = int.class;
+          Class<Integer> genericIntClass = int.class;
+          genericIntClass = Integer.class;
+          intClass = double.class;
+          //!genericIntClass = double.class;
+          Class<?> comIntClass = int.class;
+          comIntClass = double.class;
+          //!Class<Number> numClass = int.class;
+          Class<? extends Number> subNumClass = int.class;
+          subNumClass = int.class;
+          subNumClass = double.class;
+          subNumClass = Number.class;
+          Class<? super Number> superIntegerClass = Number.class;
+          println(superIntegerClass.getName());
+          CountedInteger ins = CountedInteger.class.newInstance();
+          //Integer inte = Integer.class.newInstance();
+
+          FilledList<CountedInteger> fl = new FilledList<CountedInteger>(CountedInteger.class);
+          println(fl.create(15));
+     }
+}
+{% endhighlight %}
+
+`newInstance()`可以产生一个对象实例，效果如同不带参数列表的new表达式创建一个实例，但前提是必须有一个默认的无参构造函数，因为
+`newInstance()`不接收任何参数，此外`newInstance()`在下列情况会抛出异常：
+
+- IllegalAccessException - 如果此类或其无参构造方法是不可访问的。
+- InstantiationException - 如果此 Class 表示一个抽象类、接口、数组类、基本类型或 void； 或者该类没有无参构造方法； 或者由于某种其他原因导致实例化过程失败。 
+- ExceptionInInitializerError - 如果该方法引发的初始化失败。
+- SecurityException - 如果存在安全管理器 s，并满足下列任一条件：
+     1. 调用 s.checkMemberAccess(this, Member.PUBLIC) 拒绝创建该类的新实例 。
+     2. 调用方的类加载器不同于也不是该类的类加载器的一个祖先，并且对 s.checkPackageAccess() 的调用拒绝访问该类的包 。
+
+`cast()`方法接受参数对象，并将其转型为Class引用的类型，效果类似于向下转型。子类声明为父类的引用时，在编译期间，编译器只把它当做父类来处理，如果需要子类额外的功能，则需要显示的向下转型，使用`instanceof()`可以判断对象是不是某个特定类型的实例，验证成功，则说明可以进行转型，与它等价的是`Class.isInstance()`，它，它们都能判断是否是本类或者派生类，而如果用`==`或者`equals()`判断类对象，只能判断是不是本类。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+import java.util.*;
+class Building {}
+class House extends Building {}
+public class ClassCasts{
+     public static void main(String[] args) throws Exception{
+          Building b = new House();
+          Class<House> house = House.class;
+          House h = house.cast(b);
+          //h = (House)b; //the same result
+          println(h instanceof Building);
+          println(house.isInstance(h));
+          //!println(h instanceof House.class);
+     }
+}
+{% endhighlight %}
+
+###反射机制
+
+**反射**提供了一种机制，用来检查可用的方法，并返回方法名。反射与RTTI的区别在于：对RTTI来说，编译器在编译时打开和检查`.class`文件，而对反射机制来说，`.class`文件在编译时是不可取的，所以在运行时打开和检查`.class`文件。
+
+RTTI可以提供在编译时已知的类型信息，但是人们要在运行时获得类信息的另一个动机是，希望能够提供在跨网络的远程平台上创建和运行对象的能力，即远程方法调用（RMI），它允许一个java程序将对象分布在多台电脑上，即分布式的能力，这就需要反射机制的协助。
+
+通常不需要直接使用反射机制，但是需要创建更动态的代码时反射就会很有用，所以大多数情况下用来支持其他特性，如对象序列化和JavaBean，下面是一个类方法提取器的例子。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+import java.util.regex.*;
+import java.lang.reflect.*;
+public class ShowMethods{
+     private static String usage =
+          "usage:\n"+
+          "ShowMethods qualified.class.name\n"+
+          "To show all methods in class or:\n"+
+          "ShowMethods qualified.class.name word\n"+
+          "To search for methods involving 'word'";
+     private static Pattern p =Pattern.compile("\\w+\\.");
+     public static void main(String[] args) throws Exception{
+          if(args.length<1){
+               println(usage);
+               System.exit(0);
+          }
+          int lines = 0;
+          try{
+               Class<?> c = Class.forName(args[0]);
+               Method[] methods = c.getMethods();
+               Constructor[] ctors = c.getConstructors();
+               if(args.length==1){
+                    for(Method method : methods)
+                         println(p.matcher(method.toString()).replaceAll(""));
+                    for(Constructor ctor : ctors)
+                         println(p.matcher(ctor.toString()).replaceAll(""));
+                    lines = methods.length+ctors.length;
+               }else{
+                    for(Method method : methods)
+                         if(method.toString().indexOf(args[1])!=-1){
+                              println(p.matcher(method.toString()).replaceAll(""));
+                              lines++;
+                         }
+                    for(Constructor ctor : ctors)
+                         if(ctor.toString().indexOf(args[1])!=-1){
+                              println(p.matcher(ctor.toString()).replaceAll(""));
+                              lines++;
+                         }
+               }
+          }catch(ClassNotFoundException e){
+               println(e.getMessage()+": "+e);
+          }
+     }
+}
+{% endhighlight %}
+
+###动态代理
+
+**代理模式**是为了提供额外的或不同的操作，而插入的用来代替“实际”对象的对象，这些操作设计和“实际”对象之间的通信，所以代理充当的是一个中间人的角色。设计模式的关键是**封装修改**，代理模式也是为了把额外的操作分离出来并封装起来，以易于修改。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+
+interface Interface{
+     void doSomething();
+     void somethingElse(String arg);
+}
+class RealObject implements Interface{
+     public void doSomething() { println("doSomething"); }
+     public void somethingElse(String arg) { println("somethingElse "+arg); }
+}
+class SimpleProxy implements Interface{
+     private Interface proxied;
+     public SimpleProxy(Interface proxied) { this.proxied = proxied; }
+     public void doSomething(){
+          println("SimpleProxy doSomething");
+          proxied.doSomething();
+     }
+     public void somethingElse(String arg) {
+          println("SimpleProxy somethingElse "+arg);
+          proxied.somethingElse(arg);
+     }
+}
+public class Proxy{
+     public static void consumer(Interface iface){
+          iface.doSomething();
+          iface.somethingElse("bonn");
+     }
+     public static void main(String[] args){
+          consumer(new RealObject());
+          consumer(new SimpleProxy(new RealObject()));
+     }
+}
+{% endhighlight %}
+
+**动态代理**可以更好的解决问题，它可以动态的创建代理并动态的处理对所代理方法的调用。在动态代理上所做的所有调用都会被重定向到单一的调用处理器上，它的工作是揭示调用的类型并确定相应的对策。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+import java.lang.reflect.*;
+import java.lang.reflect.Proxy;
+
+interface Something{
+     void doSomething();
+     void somethingElse(String arg);
+}
+class RealObjects implements Something{
+     public void doSomething() { println("doSomething"); }
+     public void somethingElse(String arg) { println("somethingElse "+arg); }
+}
+class DynamicProxyHandler implements InvocationHandler{
+     private Object proxied;
+     public DynamicProxyHandler(Object proxied) { this.proxied = proxied; }
+     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable{
+          println("**** proxy: "+proxy.getClass()+", method: "+method+", args: "+args);
+          if(args != null)
+               for(Object arg : args) println("  "+arg);
+          return method.invoke(proxied, args);
+     }
+}
+public class DynamicProxy{
+     public static void consumer(Something iface){
+          iface.doSomething();
+          iface.somethingElse("bonn");
+     }
+     public static void main(String[] args){
+          RealObjects real = new RealObjects();
+          consumer(real);
+          Something proxy = (Something)Proxy.newProxyInstance(
+               Something.class.getClassLoader(),
+               new Class[]{ Something.class },
+               new DynamicProxyHandler(real));
+          consumer(proxy);
+     }
+}
+{% endhighlight %}
+
+使用静态方法`Proxy.newProxyInstance()`可以创建动态代理，这个方法需要一个类加载器（通常可以从已加载的对象中获取其类加载器），一个需要代理实现的接口列表（不是类或抽象类），以及`InvocationHandler`接口的一个实现。动态代理可以将所有调用重定向到调用处理器，因此通常会向调用处理器的构造器传递一个实际对象的引用，从而使得调用处理器在执行某个中介任务时，可以将请求转发。`invoke()`方法中传递进来了代理对象，以防止你需要区分请求的来源，要注意在代理上方法的调用，因为对接口的调用将被重定向为对代理的调用。通常，先执行被代理的操作，然后使用`Method.invoke()`将请求转发给被代理对象，并传入必需的参数，这个地方可以传递其他的参数来过滤掉某些方法的调用。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+import java.lang.reflect.*;
+import java.lang.reflect.Proxy;
+
+interface SomeMethods{
+     void boring1();
+     void boring2();
+     void boring3();
+     void interesting(String arg);
+}
+class Implementation implements SomeMethods{
+     public void boring1() { println("boring1"); }
+     public void boring2() { println("boring2"); }
+     public void boring3() { println("boring3"); }
+     public void interesting(String arg) { println("interesting "+arg); }
+}
+class MethodSelector implements InvocationHandler{
+     private Object proxied;
+     public MethodSelector(Object proxied) { this.proxied = proxied; }
+     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable{
+          if(method.getName().equals("interesting"))
+               println("Proxy detected the interesting method");
+          return method.invoke(proxied, args);
+     }
+}
+public class SelectingMethods{
+     public static void main(String[] args){
+          SomeMethods proxy = (SomeMethods)Proxy.newProxyInstance(
+               SomeMethods.class.getClassLoader(),
+               new Class[]{ SomeMethods.class },
+               new MethodSelector(new Implementation()));
+          proxy.boring1();
+          proxy.boring2();
+          proxy.boring3();
+          proxy.interesting("bonn");
+     }
+}
+{% endhighlight %}
+
+对空对象方法的调用会产生烦人的`NullPointerException`异常，但是它并非都是有害的，空对象最有用之处在于它更靠近数据，因为对象表示的是问题空间内的实体。空对象都是单例，可以在合适的时候被其他非空对象替代，或者传递类型信息。
+
+###接口与类型信息
+
+interface关键字的一种重要目标就是允许程序员隔离构件，进而降低耦合性。但是通过类型信息，这种耦合性还是会传播出去，我们不想让客户端程序员访问的方法或域，通过反射还是可以访问，甚至修改，private、私有内部类、匿名类都是可以访问的。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+import java.lang.reflect.*;
+
+interface A{
+     void fun();
+}
+class B implements A{
+     public void fun() { println("public B.fun()"); }
+     public void gun() { println("public B.gun()"); }
+}
+class C implements A{
+     private int i = 3;
+     private final String str = "private final C.str";
+     private static final String sfs = "private static final C.str";
+     public void fun() { println("public C.fun()"); }
+     public void gun() { println("public C.gun()"); }
+     void hun() { println("package C.hun()"); };
+     protected void jun() { println("protected C.jun()"); }
+     private void kun() { println("private C.kun()"); }
+     private static class InnerA implements A{
+          public void fun() { println("public InnerA.fun()"); }
+          public void gun() { println("public InnerA.gun()"); }
+          void hun() { println("package InnerA.hun()"); };
+          protected void jun() { println("protected InnerA.jun()"); }
+          private void kun() { println("private InnerA.kun()"); }
+     }
+     public static A makeInnerA() { return new InnerA(); }
+     public static A makeAnonA(){
+          return new A(){
+               public void fun() { println("public AnonA.fun()"); }
+               public void gun() { println("public AnonA.gun()"); }
+               void hun() { println("package AnonA.hun()"); }
+               protected void jun() { println("protected AnonA.jun()"); }
+               private void kun() { println("private AnonA.kun()"); }
+          };
+     }
+}
+public class HiddenImplementation{
+     static void callHiddenMethod(Object a, String methodName) throws Exception{
+          Method method = a.getClass().getDeclaredMethod(methodName);
+          method.setAccessible(true);
+          method.invoke(a);
+     }
+     static Object setHiddenField(Object a, Object value, String fieldName) throws Exception{
+          Field f = a.getClass().getDeclaredField(fieldName);
+          f.setAccessible(true);
+          f.set(a, value);
+          return f.get(a);
+     }
+     static Object getHiddenField(Object a, String fieldName) throws Exception{
+          Field f = a.getClass().getDeclaredField(fieldName);
+          f.setAccessible(true);
+          return f.get(a);
+     }
+     public static void main(String[] args) throws Exception{
+          A a = new C();
+          a.fun();
+          //!a.gun();
+          println(a instanceof A);
+          println(a instanceof B);
+          println(a instanceof C);
+          println(a.getClass().getName());
+          C c = (C)a;
+          c.gun();
+          //!c.str;
+          println(getHiddenField(c, "i"));
+          setHiddenField(c, 33, "i");
+          println(getHiddenField(c, "i"));
+          println(getHiddenField(c, "str"));
+          setHiddenField(c, "final can be changed", "str");
+          println(getHiddenField(c, "str"));
+          println(getHiddenField(c, "sfs"));
+          //!setHiddenField(c, "static final can be changed", "sfs");
+          //println(getHiddenField(c, "sfs"));
+
+          C cc = new C();
+          println(getHiddenField(cc, "i"));
+          println(getHiddenField(cc, "str"));
+          println(getHiddenField(cc, "sfs"));
+
+
+          c.hun();
+          c.jun();
+          //!c.kun();
+          callHiddenMethod(c, "kun");
+          A in = C.makeInnerA();
+          callHiddenMethod(in, "fun");
+          callHiddenMethod(in, "gun");
+          callHiddenMethod(in, "hun");
+          callHiddenMethod(in, "kun");
+
+          A an = C.makeInnerA();
+          callHiddenMethod(an, "fun");
+          callHiddenMethod(an, "gun");
+          callHiddenMethod(an, "hun");
+          callHiddenMethod(an, "kun");
+     }
+}
+{% endhighlight %}
+
+其中的修改都只是针对于对象的，static的域是不能被修改的，因为它是和类相关联的。通常这些违反访问权限的操作并非都是最糟糕的事情，这种类中留下的后门实际上是可以解决某些特定类型的问题，当然访问权限最主要的作用还是在于封装性，让合适的人看到合适的域或者方法，所以违反访问权限的做法不见得是有意义的，相反却可以解决一些特定的问题。
+
 
 <div class="alert alert-block alert-warn form-inline" style="text-align:center; vertical-align:middle; font-size: 16px; font-weight:300;">To be continue!</div>
