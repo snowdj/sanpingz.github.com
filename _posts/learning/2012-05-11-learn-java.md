@@ -4,7 +4,7 @@ title: "Thinking in Java"
 category: learning
 tags: [java]
 description: |
-  java的经典名著，第一次惧于他的厚度，现在回过头来看看也感觉受益匪浅，java是我喜欢的语言之一，正如他的名字一样优雅。
+  java的经典名著，无需过多解释，没仔细研读过，别说你学过java，随手翻翻也感觉受益匪浅，java是我喜欢的语言之一，Thinking in Java也是我看过的最好的技术书籍之一。
 ---
 {% include JB/setup %}
 

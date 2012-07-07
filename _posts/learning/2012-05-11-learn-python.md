@@ -4,7 +4,7 @@ title: "Learning Python"
 category: learning
 tags: [python]
 description: |
-  因为图像处理的一些需要接触了python，一开始就被它的优雅、简洁所吸引，简单的使用过一段时间以后才理解，python评价很高不是没有道理的。
+  Python是一门优雅的语言，也是我最喜欢的语言，它的简洁高效的语法让你能专注于所解决的问题本身，Learning Python是学习Python最好的入门书籍之一。
 ---
 {% include JB/setup %}
 
