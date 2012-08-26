@@ -3,7 +3,7 @@
 permalink: /:categories/:title.html
 
 exclude: [".rbenv-version", "README.md", "Rakefile", "CNAME"]
-auto: true
+auto: false
 markdown: rdiscount
 pygments: true
 
@@ -29,7 +29,7 @@ author :
   name : mceiba
   email : mceiba@gmail.com
   github : mceiba
-  twitter : mceiba
+  twitter : zhangsp
   feedburner : nil
 
 # The production_url is only used when full-domain names are needed

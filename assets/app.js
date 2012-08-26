@@ -31,7 +31,7 @@ var Tabs = {
 // Make sure to update this whenever landing page changes to ensure proper id values.
 var Pc = {
   init : function(){
-    var $codeContainer = $("#2__install_jekyllbootstrap").next("pre").find("code");
+    var $codeContainer = $("#2__install_jekyllbootstrap").next("div").children("pre").find("code").first();
     var code = $codeContainer.text();
     var $repoName = $("#repo_name");
     var $blogLink = $("#blog_link");
