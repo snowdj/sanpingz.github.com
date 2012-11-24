@@ -36,3 +36,4 @@ function tick()
 	document.getElementById("localtime").innerHTML = showLocale(today);
 	window.setTimeout("tick()", 1000);
 };
+

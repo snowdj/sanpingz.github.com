@@ -90,7 +90,19 @@ var Toc = {
   },
   
   toggle :function(){
-    if($(window).width() > 1000) Toc.$container.show();
+    if($(window).width() > 1200) Toc.$container.show();
     else Toc.$container.hide();
   }
+}
+
+var forkme = {
+	$fork: $("#forkme"),
+	init: function(){
+		forkme.toggle();
+		$(window).resize(function(){ forkme.toggle() });
+	},
+	toggle: function(){
+		if($(window).width() > 1200) { forkme.$fork.show(); }
+		else { forkme.$fork.hide(); }
+	}
 }

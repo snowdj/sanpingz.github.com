@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% if page.head_title %}{{ page.head_title }} | {{ page.title }}{% else %}{{ page.title }}{% endif %}</title>
     {% if page.description %}<meta name="description" content="{{ page.description }}">{% endif %}
     <meta name="author" content="{{ site.author.name }}">
@@ -17,7 +18,7 @@
     <link href="{{ ASSET_PATH }}/css/custom.css?v=0.3" rel="stylesheet" type="text/css" media="all">
     <link href="{{ ASSET_PATH }}/css/syntax.css?body=1" rel="stylesheet" type="text/css" media="all">
     <link rel="shortcut icon" href="/assets/images/favicon.ico" />
-    <script src="/assets/function.js"></script>
+	<script src="/assets/function.js"></script>
   </head>
 
   <body>
@@ -53,12 +54,13 @@
     </div> <!-- /container -->
     
     {% include sidebar.html %}
-    <a href="http://github.com/mceiba/mceiba.github.com"><img style="position: absolute; top: 40px; right: 0; border: 0;" src="/assets/images/forkme.png" alt="Fork me on GitHub"></a>
+    <a id="forkme" style="display:none" href="http://github.com/mceiba/mceiba.github.com"><img style="position: absolute; top: 40px; right: 0; border: 0;" src="/assets/images/forkme.png" alt="Fork me on GitHub"></a>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script>window.jQuery || document.write('<script src="{{ ASSET_PATH }}/js/jquery.min.js"><\/script>')</script>
     <script src="/assets/app.js?v=0.1"></script>
     <script>
       $(function(){
+	  forkme.init();
       {% if page.url == "/index.html" %}
         Tabs.init("#tab-list", "#tab-content-wrapper");
         //Pc.init();
@@ -68,7 +70,7 @@
 		//$("h2").attr("id", function(){ return "h2_"(i++)+"_"+this.title });
         Toc.init('#sidebar', '#main');
       {% endif %}
-      })
+	  })
     </script>
     {% include JB/analytics %}
     <!--{% include mixpanel %}-->
