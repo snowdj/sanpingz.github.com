@@ -3789,5 +3789,711 @@ class ArraysFunc{
 
 ##第17章 容器深入研究
 
+##第18章 Java I/O系统
+
+##第19章 枚举类型
+
+###基本enum特性
+
+`values()`可以返回enum实例的数组，元素顺序严格保持在enum中声明的顺序。创建enum时编译器会生成一个相关的类（final型），这个类继承自java.lang.Enum。enum除了不能继承外，基本上可以看做一个类，即可以添加方法（实例在最开始），甚至可以有main方法。enum可以有自己的构造器，但是只能在内部使用创建enum实例，即在enum定义结束后，编译器不允许再使用构造器。enum还可以覆盖方法，比如`toString()`。
+
+在switch语句的case中使用enum实例可以不用enum类型来修饰。`values()`方法是由编译器插入到enum中的static方法，如果将enum向上转型为Enum，`values()`方法将不可用，不过可以用`Class.getEnumConstants()`方法获得所有的enum实例。
+
+enum都继承自Enum，所以就不能继承其他的类，但是可以实现接口。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+import com.mceiba.util.OSExecute;
+import java.util.*;
+import java.lang.Enum;
+enum Shrubbery { GROUND, CRAWLING, HANGING }
+enum OzWitch{
+     WEST("Miss Gulch, aka the Wiched Witch of the West"),
+     NORTH("Glinda, the Good Witch of the North"),
+     EAST("Wicked Witch of the East, wearer of the Ruby"),
+     SOUTH("Good by inference, but missing");
+     private String description;
+     private OzWitch(String description) { this.description = description; }
+     public String getDescription() { return description; }
+     public String toString(){
+          String id = name();
+          String lower = id.substring(1).toLowerCase();
+          return id.charAt(0)+lower;
+     }
+     public static void test(){
+          for(OzWitch ow : OzWitch.values()){
+               println(ow+": "+ow.getDescription());
+          }
+     }
+}
+enum Signal { GREEN, YELLOW, RED }
+public class EnumClass{
+     Signal color = Signal.RED;
+     public void change(){
+          switch(color){
+               case RED : color = Signal.YELLOW; break;
+               case YELLOW : color = Signal.GREEN; break;
+               case GREEN : color = Signal.RED; break;
+          }
+     }
+     public String toString(){
+          return "This tranffic light is "+color;
+     }
+     public static void main(String[] args){
+          for(Shrubbery sb : Shrubbery.values()){
+               println(sb+" ordinal: "+sb.ordinal()+", DeclaringCalss: "+
+                    sb.getDeclaringClass()+", name: "+sb.name());
+          }
+          Enum eu = Signal.GREEN;
+          //!eu.values();
+          for(Enum en : eu.getClass().getEnumConstants())
+               print(en+" ");
+          println();
+          for(String st : "GROUND CRAWLING HANGING".split(" ")){
+               Shrubbery sby = Enum.valueOf(Shrubbery.class, st);
+               println(sby);
+          }
+          OzWitch.test();
+          EnumClass tranffic = new EnumClass();
+          for(int i=0; i<5; i++){
+               println(tranffic);
+               tranffic.change();
+          }
+          OSExecute.command("javap Signal");
+     }
+}
+{% endhighlight %}
+
+###组织枚举
+ 
+在一个接口的内部，创建实现该接口的枚举，可以达到将枚举元素分类组织的目的。还可以使用嵌套的方式来组织枚举。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+import java.util.*;
+import java.lang.Enum;
+interface Food{
+     enum Appetizer implements Food{
+          SALAD, SOUP, SPARING_ROLLS;
+     }
+     enum MainCourse implements Food{
+          LASAGNE, BURRITO, PAD_THAI,
+          LENTILS, HUMMOUS, VINDALOO;
+     }
+     enum Dessert implements Food{
+          TIRAMISU, GELATO, BLACK_FORSET,
+          FRUIT, CREME_CARAMEL;
+     }
+     enum Coffee implements Food{
+          BLACK_COFFEE, DECAF_COFFEE, ESPRESSO,
+          LATTE, CAPPUCCINO, TEA, HERB_TEA;
+     }
+}
+enum Course{
+     APPETIZER(Food.Appetizer.class),
+     MAINCOURSE(Food.MainCourse.class),
+     DESSERT(Food.Dessert.class),
+     COFFEE(Food.Coffee.class);
+     private Food[] values;
+     private Course(Class<? extends Food> kind){
+          values = kind.getEnumConstants();
+     }
+     Random rand = new Random();
+     public Food getValue() { return values[rand.nextInt(values.length)]; }
+}
+enum Meal{
+     APPETIZER(Food.Appetizer.class),
+     MAINCOURSE(Food.MainCourse.class),
+     DESSERT(Food.Dessert.class),
+     COFFEE(Food.Coffee.class);
+     private Food[] values;
+     public interface Food{
+          enum Appetizer implements Food{
+               SALAD, SOUP, SPARING_ROLLS;
+          }
+          enum MainCourse implements Food{
+               LASAGNE, BURRITO, PAD_THAI,
+               LENTILS, HUMMOUS, VINDALOO;
+          }
+          enum Dessert implements Food{
+               TIRAMISU, GELATO, BLACK_FORSET,
+               FRUIT, CREME_CARAMEL;
+          }
+          enum Coffee implements Food{
+               BLACK_COFFEE, DECAF_COFFEE, ESPRESSO,
+               LATTE, CAPPUCCINO, TEA, HERB_TEA;
+          }
+     }
+     private Meal(Class<? extends Food> kind){
+          values = kind.getEnumConstants();
+     }
+     Random rand = new Random();
+     public Food getValue() { return values[rand.nextInt(values.length)]; }
+}
+public class TypeOfFood{
+     public static void main(String[] args){
+          for(int i=0; i<2; i++){
+               for(Course course : Course.values()){
+                    Food food = course.getValue();
+                    println(food);
+               }
+               println("-----");
+          }
+          for(int i=0; i<2; i++){
+               for(Meal meal : Meal.values()){
+                    Meal.Food food = meal.getValue();
+                    println(food);
+               }
+               println("-----");
+          }
+     }
+}
+{% endhighlight %}
+
+**EnumSet**可以替代传统的基于int的位标识，这种标志同样表示“开/关”的信息，取代bit，它的内部是将一个long值作为比特向量，同时保证了速度而又更容易让人理解。
+{% highlight java linenos %}
+EnumSet<Signal> num = EnumSet.noneOf(Signal.class);
+num.add(Signal.RED);
+println(num);
+num.addAll(EnumSet.of(Signal.YELLOW, Signal.GREEN));
+println(num);
+num.removeAll(EnumSet.of(Signal.YELLOW, Signal.GREEN));
+println(num);
+num = EnumSet.allOf(Signal.class);
+println(num);
+{% endhighlight %}
+
+**EnumMap**是一种特殊的Map，其中的key必须来自于一个enum，而且enum作为一个实例的键总是存在的，如果没有调用`put()`方法存入值，对应的值就是null。
+{% highlight java linenos %}
+interface Command { void action(); }
+enum Signal { RED, YELLOW, GREEN }
+public class Commands{
+     public static void main(String[] args){
+          EnumMap<Signal, Command> em = new EnumMap<Signal, Command>(Signal.class);
+          em.put(Signal.RED, new Command(){
+               public void action() { println("stop"); }
+          });
+          em.put(Signal.YELLOW, new Command(){
+               public void action() { println("wait"); }
+          });
+          em.put(Signal.GREEN, new Command(){
+               public void action() { println("go"); }
+          });
+          for(Map.Entry<Signal, Command> e : em.entrySet()){
+               print(e.getKey()+": ");
+               e.getValue().action();
+          }
+     }
+}
+{% endhighlight %}
+
+这里使用了**命令模式**，即首先需要一个只有单一方法的接口，然后从该接口实现具有不同行为的多了类，接下来构建命令对象，并且根据对象实现不同的行为。
+
+###常量相关的方法
+
+enum允许为enum实例编写方法，从而可以为每个enum实例赋予不同的行为。要实现**常量相关的方法**，需要为enum定义一个或多个abstract方法，然后为每个enum实例实现该抽象方法，也可以定义一般的方法，并且在enum实例中可以覆盖。这通常称为**表驱动的代码**（table-driven code），与命令模式具有某种相似之处。
+
+enum的实例与类也有一些相似之处，在调用常量相关的方法时表现出了“多态”的行为，但是相似之处也仅限于此，并不能将enum实例作为一个类来使用。每个enum元素都是enum类型放入static final实例。
+{% highlight java linenos %}
+public enum ConstantMethod{
+     DATETIME{
+          void fun() { println("Current date"); }
+          String getInfo(){
+               return DateFormat.getDateInstance().format(new Date());
+          }
+     },
+     CLASSPATH{
+          String getInfo(){
+               return System.getenv("CLASSPATH");
+          }
+     },
+     VERSION{
+          void fun() { println("System JDK version"); }
+          String getInfo(){
+               return System.getProperty("java.version");
+          }
+     };
+     abstract String getInfo();
+     void fun() { println("default method"); }
+     public static void main(String[] args){
+          for(ConstantMethod cm : values()){
+               cm.fun();
+               println(cm.getInfo());
+          }
+     }
+}
+{% endhighlight %}
+
+通过常量相关的方法还可以实现简单的**责任链模式**，即以多种不同的方法来解决一个问题，然后将这些方法链接在一起，当一个请求到来时，遍历整个链，直到链中的某个解决方案（每一个解决方案可以当做一种策略）可以处理该请求。
+{% highlight java linenos %}
+import java.util.*;
+import static com.mceiba.util.Print.*;
+class Enums{
+  public static <T extends Enum<T>> T random(Class<T> type){
+    Random rand = new Random();
+    return type.getEnumConstants()[rand.nextInt(type.getEnumConstants().length)];
+  }
+}
+class Mail {
+  // The NO's lower the probability of random selection:
+  enum GeneralDelivery {YES,NO1,NO2,NO3,NO4,NO5}
+  enum Scannability {UNSCANNABLE,YES1,YES2,YES3,YES4}
+  enum Readability {ILLEGIBLE,YES1,YES2,YES3,YES4}
+  enum Address {INCORRECT,OK1,OK2,OK3,OK4,OK5,OK6}
+  enum ReturnAddress {MISSING,OK1,OK2,OK3,OK4,OK5}
+  GeneralDelivery generalDelivery;
+  Scannability scannability;
+  Readability readability;
+  Address address;
+  ReturnAddress returnAddress;
+  static long counter = 0;
+  long id = counter++;
+  public String toString() { return "Mail " + id; }
+  public String details() {
+    return toString() +
+      ", General Delivery: " + generalDelivery +
+      ", Address Scanability: " + scannability +
+      ", Address Readability: " + readability +
+      ", Address Address: " + address +
+      ", Return address: " + returnAddress;
+  }
+  // Generate test Mail:
+  public static Mail randomMail() {
+    Mail m = new Mail();
+    m.generalDelivery= Enums.random(GeneralDelivery.class);
+    m.scannability = Enums.random(Scannability.class);
+    m.readability = Enums.random(Readability.class);
+    m.address = Enums.random(Address.class);
+    m.returnAddress = Enums.random(ReturnAddress.class);
+    return m;
+  }
+  public static Iterable<Mail> generator(final int count) {
+    return new Iterable<Mail>() {
+      int n = count;
+      public java.util.Iterator<Mail> iterator() {
+        return new java.util.Iterator<Mail>() {
+          public boolean hasNext() { return n-- > 0; }
+          public Mail next() { return randomMail(); }
+          public void remove() { // Not implemented
+            throw new UnsupportedOperationException();
+          }
+        };
+      }
+    };
+  }
+}
+
+public class Chain {
+  enum MailHandler {
+    GENERAL_DELIVERY {
+      boolean handle(Mail m) {
+        switch(m.generalDelivery) {
+          case YES:
+            println("Using general delivery for " + m);
+            return true;
+          default: return false;
+        }
+      }
+    },
+    MACHINE_SCAN {
+      boolean handle(Mail m) {
+        switch(m.scannability) {
+          case UNSCANNABLE: return false;
+          default:
+            switch(m.address) {
+              case INCORRECT: return false;
+              default:
+                println("Delivering "+ m + " automatically");
+                return true;
+            }
+        }
+      }
+    },
+    VISUAL_INSPECTION {
+      boolean handle(Mail m) {
+        switch(m.readability) {
+          case ILLEGIBLE: return false;
+          default:
+            switch(m.address) {
+              case INCORRECT: return false;
+              default:
+                println("Delivering " + m + " normally");
+                return true;
+            }
+        }
+      }
+    },
+    RETURN_TO_SENDER {
+      boolean handle(Mail m) {
+        switch(m.returnAddress) {
+          case MISSING: return false;
+          default:
+            println("Returning " + m + " to sender");
+            return true;
+        }
+      }
+    };
+    abstract boolean handle(Mail m);
+  }
+  static void handle(Mail m) {
+    for(MailHandler handler : MailHandler.values())
+      if(handler.handle(m))
+        return;
+    println(m + " is a dead letter");
+  }
+  public static void main(String[] args) {
+    for(Mail mail : Mail.generator(10)) {
+      println(mail.details());
+      handle(mail);
+      println("*****");
+    }
+  }
+} /* Output:
+Mail 0, General Delivery: NO2, Address Scanability: UNSCANNABLE, Address Readability: YES3, Address Address: OK1, Return address: OK1
+Delivering Mail 0 normally
+*****
+Mail 1, General Delivery: NO5, Address Scanability: YES3, Address Readability: ILLEGIBLE, Address Address: OK5, Return address: OK1
+Delivering Mail 1 automatically
+*****
+Mail 2, General Delivery: YES, Address Scanability: YES3, Address Readability: YES1, Address Address: OK1, Return address: OK5
+Using general delivery for Mail 2
+*****
+Mail 3, General Delivery: NO4, Address Scanability: YES3, Address Readability: YES1, Address Address: INCORRECT, Return address: OK4
+Returning Mail 3 to sender
+*****
+Mail 4, General Delivery: NO4, Address Scanability: UNSCANNABLE, Address Readability: YES1, Address Address: INCORRECT, Return address: OK2
+Returning Mail 4 to sender
+*****
+Mail 5, General Delivery: NO3, Address Scanability: YES1, Address Readability: ILLEGIBLE, Address Address: OK4, Return address: OK2
+Delivering Mail 5 automatically
+*****
+Mail 6, General Delivery: YES, Address Scanability: YES4, Address Readability: ILLEGIBLE, Address Address: OK4, Return address: OK4
+Using general delivery for Mail 6
+*****
+Mail 7, General Delivery: YES, Address Scanability: YES3, Address Readability: YES4, Address Address: OK2, Return address: MISSING
+Using general delivery for Mail 7
+*****
+Mail 8, General Delivery: NO3, Address Scanability: YES1, Address Readability: YES3, Address Address: INCORRECT, Return address: MISSING
+Mail 8 is a dead letter
+*****
+Mail 9, General Delivery: NO1, Address Scanability: UNSCANNABLE, Address Readability: YES2, Address Address: OK1, Return address: OK4
+Delivering Mail 9 normally
+*****
+*///:~
+{% endhighlight %}
+
+枚举类型非常适合用来创建**状态机**，状态机一般具有多个特定的状态，根据输入从一个状态转移到下了一个状态，但是也可能存在瞬时状态。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+import com.mceiba.util.TextFile;
+import java.util.*;
+
+interface Generator<T> { T next(); }
+enum Input{
+     NICKEL(5), DIME(10), QUARTER(25), DOLLAR(100),
+     TOOTHPASTE(200), CHIPS(75), SODA(100), SOAP(50),
+     ABORT_TRANSACTION{
+          public int amount(){
+               throw new RuntimeException("ABORT.amount()");
+          }
+     },
+     STOP{
+          public int amount(){
+               throw new RuntimeException("SHUT_DOWN.amount()");
+          }
+     };
+     int value;
+     Input(int value) { this.value = value; }
+     Input() {}
+     int amount() { return value; }
+     static Random rand = new Random();
+     public static Input randomSelection(){
+          return values()[rand.nextInt(values().length-1)];
+     }
+}
+enum Category{
+     MONEY(Input.NICKEL, Input.DIME, Input.QUARTER, Input.DOLLAR),
+     ITEM_SELECTION(Input.TOOTHPASTE, Input.CHIPS, Input.SODA, Input.SOAP),
+     QUIT_TANSACTION(Input.ABORT_TRANSACTION),
+     SHUT_DOWN(Input.STOP);
+     private Input[] values;
+     Category(Input... types) { values = types; }
+     private static EnumMap<Input, Category> categories =
+     new EnumMap<Input, Category>(Input.class);
+     static{
+          for(Category c : Category.class.getEnumConstants())
+               for(Input type : c.values)
+                    categories.put(type, c);
+     }
+     public static Category categorize(Input input){
+          return categories.get(input);
+     }
+}
+public class VendingMachine{
+     private static State state = State.RESTING;
+     private static int amount = 0;
+     private static Input selection = null;
+     enum StateDuration { TRANSIENT }
+     enum State{
+          RESTING{
+               void next(Input input){
+                    switch(Category.categorize(input)){
+                         case MONEY:
+                              amount += input.amount();
+                              state = ADDING_MONEY;
+                              break;
+                         case SHUT_DOWN:
+                              state = TERMINAL;
+                         default:
+                    }
+               }
+          },
+          ADDING_MONEY{
+               void next(Input input){
+                    switch(Category.categorize(input)){
+                         case MONEY:
+                              amount += input.amount();
+                              break;
+                         case ITEM_SELECTION:
+                              selection = input;
+                              if(amount<selection.amount())
+                                   println("Insufficient money for "+selection);
+                              else state = DISPENSING;
+                              break;
+                         case QUIT_TANSACTION:
+                              state = GIVING_CHANGE;
+                              break;
+                         case SHUT_DOWN:
+                              state = TERMINAL;
+                         default:
+                    }
+               }
+          },
+          DISPENSING(StateDuration.TRANSIENT){
+               void next(){
+                    println("Here is your  "+amount);
+                    amount -= selection.amount();
+                    state = GIVING_CHANGE;
+               }
+          },
+          GIVING_CHANGE(StateDuration.TRANSIENT){
+               void next(){
+                    if(amount>0){
+                         println("Your change: "+amount);
+                         amount = 0;
+                    }
+                    state = RESTING;
+               }
+          },
+          TERMINAL{ void output() { println("Halted"); }};
+          private boolean isTransient = false;
+          State() {}
+          State(StateDuration trans) { isTransient = true; }
+          void next(Input input){
+               throw new RuntimeException("Only call next() for "+
+                    "StateDuration.TRANSIENT states");
+          }
+          void next(){
+               throw new RuntimeException("Only call "+
+                    "next(Input input) for non-transient states");
+          }
+          void output() { println(amount); }
+     }
+     static void run(Generator<Input> gen){
+          while(state != State.TERMINAL){
+               state.next(gen.next());
+               while(state.isTransient)
+                    state.next();
+               state.output();
+          }
+     }
+     public static void main(String[] args){
+          Generator<Input> gen = new RandomInputGenerator();
+          if(args.length ==1)
+               gen = new FileInputGenerator(args[0]);
+          run(gen);
+     }
+}
+
+class RandomInputGenerator implements Generator<Input>{
+     public Input next() { return Input.randomSelection(); }
+}
+class FileInputGenerator implements Generator<Input>{
+     private Iterator<String> input;
+     public FileInputGenerator(String fileName){
+          input = new TextFile(fileName, ";").iterator();
+     }
+     public Input next() {
+          if(!input.hasNext())
+               return null;
+          return Enum.valueOf(Input.class, input.next().trim());
+     }
+}
+{% endhighlight %}
+
+###多路分发
+
+Java只支持**单路分发**，即如果要执行的操作包含了不止一个类型未知的对象时，那么java的动态绑定机制只能处理其中一个的类型。要实现**多路分发**需要一些额外的工作，由于多态只能发生在方法调用时，所以要使用多路分发，那么就必须有多个方法调用，每个方法确定一个位置类型。但是一般可以设定一些配置，使一个方法的调用可以引出多个方法的调用。可以使用多种方法实现多路分发。
+{% highlight java linenos %}
+import static com.mceiba.util.Print.*;
+import com.mceiba.util.Enums;
+import java.util.*;
+enum Outcome { WIN, LOSE, DRAW }
+interface Item{
+     Outcome compete(Item it);
+     Outcome eval(Paper p);
+     Outcome eval(Scissors s);
+     Outcome eval(Rock r);
+}
+class Paper implements Item{
+     public Outcome compete(Item it) { return it.eval(this); }
+     public Outcome eval(Paper p) { return Outcome.DRAW; }
+     public Outcome eval(Scissors s) { return Outcome.WIN; }
+     public Outcome eval(Rock r) { return Outcome.LOSE; }
+     public String toString() { return "Paper"; }
+}
+class Scissors implements Item{
+     public Outcome compete(Item it) { return it.eval(this); }
+     public Outcome eval(Paper p) { return Outcome.LOSE; }
+     public Outcome eval(Scissors s) { return Outcome.DRAW; }
+     public Outcome eval(Rock r) { return Outcome.WIN; }
+     public String toString() { return "Scissors"; }
+}
+class Rock implements Item{
+     public Outcome compete(Item it) { return it.eval(this); }
+     public Outcome eval(Paper p) { return Outcome.WIN; }
+     public Outcome eval(Scissors s) { return Outcome.LOSE; }
+     public Outcome eval(Rock r) { return Outcome.DRAW; }
+     public String toString() { return "Rock"; }
+}
+class RoShamBo1{
+     static final int SIZE = 10;
+     private static Random rand = new Random();
+     public static Item newItem() {
+          switch(rand.nextInt(3)){
+               default:
+               case 0: return new Scissors();
+               case 1: return new Paper();
+               case 2: return new Rock();
+          }
+     }
+     public static void match(Item a, Item b){
+          println(a+" vs "+b+": "+a.compete(b));
+     }
+     public static void test(){
+          println("***(1) use same interface ***");
+          for(int i=0; i<SIZE; i++)
+               match(newItem(), newItem());
+     }
+}
+interface Competitor<T extends Competitor<T>>{
+     Outcome compete(T competitor);
+}
+enum RoShamBo2 implements Competitor<RoShamBo2>{
+     PAPER(Outcome.DRAW, Outcome.LOSE, Outcome.WIN),
+     SCISSORS(Outcome.DRAW, Outcome.LOSE, Outcome.WIN),
+     ROCK(Outcome.DRAW, Outcome.LOSE, Outcome.WIN);
+     private Outcome vPAPER, vSCISSORS, vROCK;
+     RoShamBo2(Outcome paper, Outcome scissors, Outcome rock){
+          this.vPAPER = paper;
+          this.vSCISSORS = scissors;
+          this.vROCK = rock;
+     }
+     public Outcome compete(RoShamBo2 it){
+          switch(it){
+               default:
+               case PAPER: return vPAPER;
+               case SCISSORS: return vSCISSORS;
+               case ROCK: return vROCK;
+          }
+     }
+}
+enum RoShamBo3 implements Competitor<RoShamBo3>{
+     ROCK{
+          public Outcome compete(RoShamBo3 opponent){
+               return compete(SCISSORS, opponent);
+          }
+     },
+     SCISSORS{
+          public Outcome compete(RoShamBo3 opponent){
+               return compete(ROCK, opponent);
+          }
+     },
+     PAPER{
+          public Outcome compete(RoShamBo3 opponent){
+               return compete(SCISSORS, opponent);
+          }
+     };
+     Outcome compete(RoShamBo3 loser, RoShamBo3 opponent){
+          return ((opponent == this) ? Outcome.DRAW :
+               ((opponent == loser) ? Outcome.WIN : Outcome.LOSE));
+     }
+}
+enum RoShamBo4 implements Competitor<RoShamBo4>{
+     PAPER, SCISSORS, ROCK;
+     static EnumMap<RoShamBo4, EnumMap<RoShamBo4, Outcome>> table =
+          new EnumMap <RoShamBo4, EnumMap<RoShamBo4, Outcome>>(RoShamBo4.class);
+     static{
+          for(RoShamBo4 it : RoShamBo4.values())
+               table.put(it, new EnumMap<RoShamBo4, Outcome>(RoShamBo4.class));
+          initRow(PAPER, Outcome.DRAW, Outcome.LOSE, Outcome.WIN);
+          initRow(SCISSORS, Outcome.WIN, Outcome.DRAW, Outcome.LOSE);
+          initRow(ROCK, Outcome.LOSE, Outcome.WIN, Outcome.DRAW);
+     }
+     static void initRow(RoShamBo4 it, Outcome vPAPER, Outcome vSCISSORS, Outcome vROCK){
+          EnumMap<RoShamBo4, Outcome> row = RoShamBo4.table.get(it);
+          row.put(RoShamBo4.PAPER, vPAPER);
+          row.put(RoShamBo4.SCISSORS, vSCISSORS);
+          row.put(RoShamBo4.ROCK, vROCK);
+     }
+     public Outcome compete(RoShamBo4 it){
+          return table.get(this).get(it);
+     }
+}
+enum RoShamBo5 implements Competitor<RoShamBo5>{
+     PAPER, SCISSORS, ROCK;
+     private static Outcome[][] table = {
+          { Outcome.DRAW, Outcome.LOSE, Outcome.WIN },
+          { Outcome.WIN, Outcome.DRAW, Outcome.LOSE },
+          { Outcome.LOSE, Outcome.WIN, Outcome.DRAW }
+     };
+     public Outcome compete(RoShamBo5 other){
+          return table[this.ordinal()][other.ordinal()];
+     }
+}
+public class RoShamBo{
+     public static <T extends Competitor<T>> void match(T a ,T b){
+          println(a+" vs "+b+": "+a.compete(b));
+     }
+     public static <T extends Enum<T> & Competitor<T>> void test(Class<T> rsb, int size){
+          for(int i=0; i<size; i++)
+               match(Enums.random(rsb), Enums.random(rsb));
+     }
+     public static void main(String[] args){
+          RoShamBo1.test();
+          println("\n*** (2) use constructorv init instances ***");
+          test(RoShamBo2.class, 10);
+          println("\n*** (3) use constants method ***");
+          test(RoShamBo3.class, 10);
+          println("\n*** (4) use EnumMap ***");
+          test(RoShamBo4.class, 10);
+          println("\n*** (5) use 2D Array ***");
+          test(RoShamBo5.class, 10);
+     }
+}
+{% endhighlight %}
+
+##第20章 注解
+
+##第21章 并发
+
+**并发**编程可以使程序执行速度得到极大的提高，或者设计某些类型的程序提供更易用的模型，用并发解决的问题大体上可以分为“速度”和“设计可管理性”两种。
+
+并发是用于多处理器编程额基本工具，但是并发通常是提高运行在单处理器上程序的性能。从性能上说，如果没有**阻塞**，那么在单核处理器上使用并发就没有任何意义，在单核处理系统中性能提高的常见示例是**事件驱动编程**。
+
+###基本的线程机制
+
+实现并发最直接的方式是在操作系统级别使用进程。**进程**是运行在它自己的地址空间内的自包容程序。java提供了**线程**的支持，与多任务操作系统中分叉外部进程不同，线程机制是由执行程序表示的单一进程中创建任务。java的线程机制是抢占式的，调度机制会周期性的中断线程，将上下文切换到另一个线程，从而为每个线程都分配数量合理的时间片去驱动它的任务。单个进程可以有多个并发执行的任务，线程的一大好处是代码不必知道他是运行在一个还是多个CPU的机器上。
+
+多任务和多线程是使用多处理器系统最合理的方式。线程可以驱动任务，Runnable接口的`run()`方法提供了对任务的一种描述方式，将Runnable对象转变为工作任务的传统方式是把它交给一个Thread构造器，`start()`方法进程执行必须的初始化操作，然后调用Runnable对象的`run()`方法，并迅速返回，`start()`方法调用完成之后，执行线程会继续存在，而Thread对象在任务退出`run()`方法死亡之前，GC都不能清理它。调用`Thread.yield()`是对**线程调度器**的一种建议，声明现在可以切换到其他任务。
+
 
 <div class="alert alert-block alert-warn form-inline" style="text-align:center; vertical-align:middle; font-size: 16px; font-weight:300;">To be continue!</div>
