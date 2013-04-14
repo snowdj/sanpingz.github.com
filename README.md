@@ -4,6 +4,6 @@
 
 <http://www.mceiba.com>
 
- - Twitter: [@zhangsp](http://twitter.com/#!/zhangsp)
+ - Twitter: [@sanpingz](http://twitter.com/#!/sanpingz)
  - Facebook: [mceiba](https://www.facebook.com/#!/mceiba)
 
