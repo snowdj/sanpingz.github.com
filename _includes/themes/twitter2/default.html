@@ -22,9 +22,9 @@
   </head>
 
   <body>
-    <div id="navbar" class="navbar navbar-fixed-top">
+    <div id="navbar" class="navbar navbar-fixed-top" style="padding-left: 0; padding-right: 0;">
       <div class="navbar-inner" style="background:#2c2c2c">
-        <div class="conainer" style="margin-left:20px; margin-right:20px; overflow:hidden">
+        <div class="container-fluid" style="margin-left:8%; margin-right:5%; overflow:hidden; padding-left: 0; padding-right: 0;">
           <a class="brand" href="{{ HOME_PATH }}">{{ site.title }}</a>
           <ul class="nav" style="font-weight: 250;">
             <li class="divider-vertical"></li>
@@ -41,7 +41,7 @@
       </div>
     </div>
 
-    <div id="main" class="container" style="position: relative;>
+    <div id="main" class="container-fluid" style="position: relative; padding-left: 14.12%; padding-right: 14.12%;">
       {{ content }}
       <hr>
       <footer class="footer" style="text-align:center; margin:40px 0">
@@ -54,13 +54,13 @@
     </div> <!-- /container -->
     
     {% include sidebar.html %}
-    <a id="forkme" style="display:none" href="http://github.com/mceiba/mceiba.github.com"><img style="position: absolute; top: 40px; right: 0; border: 0;" src="/assets/images/forkme.png" alt="Fork me on GitHub"></a>
+    <!-- <a id="forkme" style="display:none" href="http://github.com/mceiba/mceiba.github.com"><img style="position: absolute; top: 40px; right: 0; border: 0;" src="/assets/images/forkme.png" alt="Fork me on GitHub"></a> -->
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script>window.jQuery || document.write('<script src="{{ ASSET_PATH }}/js/jquery.min.js"><\/script>')</script>
     <script src="/assets/app.js?v=0.1"></script>
     <script>
       $(function(){
-	  forkme.init();
+      <!-- forkme.init(); -->
       {% if page.url == "/index.html" %}
         Tabs.init("#tab-list", "#tab-content-wrapper");
         //Pc.init();
