@@ -10,7 +10,7 @@
       {% include custom/weibo %}
       </div>
       <div id="mc_embed_signup" style="width: 100%; float: right; margin-left: 0px; margin-right: 0px;">
-        <ul id="tab-list" class="nav nav-pills">
+        <ul id="tab-list" class="nav nav-pills" style="font-size: 18px">
           <li><a href="archive.html">文章存档</a></li>
           <li><a href="categories.html">博文分类</a></li>
           <!-- <li><a href="tags.html">我的标签</a></li> -->
@@ -22,7 +22,7 @@
               {% assign tags_list = site.tags %}  
               {% include JB/tags_list %}
             </ul>
-            <ul>
+            <ul class="collate_list">
               {% assign posts_collate = site.posts %}
               {% include custom/posts_collate %}
             </ul>
@@ -60,8 +60,6 @@
 
         </div>
       </div>
-
-      <br/>
 
     {% include custom/friend %}
 
