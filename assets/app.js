@@ -90,7 +90,7 @@ var Toc = {
   },
   
   toggle :function(){
-    if($(window).width() > 1240) Toc.$container.show();
+    if($(window).width() > 1000) Toc.$container.show();
     else Toc.$container.hide();
   }
 }
