@@ -3,7 +3,7 @@ layout: landing
 title: mceiba的个人博客
 head_title: 晨旭园
 description: |
-  屌丝的技术生涯
+  程序员的技术生涯
 ---
 
 <div class="row" style="margin-bottom:20px;">
@@ -21,4 +21,3 @@ description: |
   </div>
   
 </div>
-
