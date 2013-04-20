@@ -62,17 +62,21 @@
     <script src="/assets/app.js?v=0.1"></script>
     <script>
       $(function(){
-      <!-- forkme.init(); -->
+        //forkme.init(); 
+        // var delta = $(window).height() - $(document.body).height();
+        // if (delta>0) {
+        //   $("body").css("height", $(window).height())
+        // }
       {% if page.url == "/index.html" %}
         Tabs.init("#tab-list", "#tab-content-wrapper");
         //Pc.init();
       {% else %}
-		var i=1;
-		$("h2").each(function(){$(this).attr("id",(i++)+"_"+$(this).text());});
-		//$("h2").attr("id", function(){ return "h2_"(i++)+"_"+this.title });
-        Toc.init('#sidebar', '#main');
-      {% endif %}
-	  })
+		  var i=1;
+  		$("h2").each(function(){$(this).attr("id",(i++)+"_"+$(this).text());});
+  		//$("h2").attr("id", function(){ return "h2_"(i++)+"_"+this.title });
+          Toc.init('#sidebar', '#main');
+        {% endif %}
+  	  })
     </script>
     {% include JB/analytics %}
     <!--{% include mixpanel %}-->
