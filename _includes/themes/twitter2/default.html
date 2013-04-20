@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% if page.head_title %}{{ page.head_title }} | {{ page.title }}{% else %}{{ page.title }}{% endif %}</title>
     {% if page.description %}<meta name="description" content="{{ page.description }}">{% endif %}
     <meta name="author" content="{{ site.author.name }}">
@@ -44,14 +44,16 @@
     <div id="main" class="container-fluid" style="position: relative; padding-left: 8%; padding-right: 8%;">
       {{ content }}
       <hr>
-      <footer class="footer" style="text-align:center; margin:40px 0">
-        <p>Lovingly authored by {{ site.author.name }} in 2012 with help 
+      
+    </div> <!-- /container -->
+
+    <footer class="footer">
+      <p id="footer-first-child">Lovingly authored by {{ site.author.name }} in 2012 with help 
           <br>from <a href="http://jekyllbootstrap.com" target="_blank" title="The Definitive Jekyll Blogging Framework">Jekyll Bootstrap</a>,<a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>, and countless humans.
         </p>
         <p>&copy; 2012 {{ site.author.name }}, Powered by Github</p>
         <!--<p><a href="https://mixpanel.com/f/partner"><img src="https://mixpanel.com/site_media/images/partner/badge_light.png" alt="Real Time Web Analytics" /></a></p>-->
-      </footer>
-    </div> <!-- /container -->
+    </footer>
     
     {% include sidebar.html %}
     <!-- <a id="forkme" style="display:none" href="http://github.com/mceiba/mceiba.github.com"><img style="position: absolute; top: 40px; right: 0; border: 0;" src="/assets/images/forkme.png" alt="Fork me on GitHub"></a> -->

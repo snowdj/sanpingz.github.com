@@ -203,6 +203,20 @@ h3 {margin:0px 0 10px 0}
 .landing .span4 {
   width: 30%;
 }
+.footer {
+  background: url('../../../images/footer.png') repeat-x;
+  text-align:center;
+  margin: 0;
+  padding: 25px;
+  height: 80px;
+  overflow: hidden;
+}
+.footer p{
+  font-weight: normal;
+  color: #eee;
+  font-family: inherit;
+  font-size: 1em;
+}
 
 @media (max-width: 480px) {
   .landing > [class*="span"] {
@@ -210,6 +224,12 @@ h3 {margin:0px 0 10px 0}
   }
   .nav-right {
     display: none !important;
+  }
+  #footer-first-child {
+    display: none !important;
+  }
+  .footer {
+    height: 30px !important;
   }
 }
 @media (min-width: 480px) and (max-width: 890px) {
