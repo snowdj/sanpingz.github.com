@@ -65,10 +65,10 @@
         //forkme.init(); 
         var delta = $(window).height() - $(document.body).height() -50;
         if (delta>0) {
-          // $(".footer").css("margin-top", delta);
-          $(".footer").animate({
-            "margin-top": delta+"px"
-          }, "fast");
+          $(".footer").css("margin-top", delta);
+          // $(".footer").animate({
+          //   "margin-top": delta+"px"
+          // }, "fast");
         }
       {% if page.url == "/index.html" %}
         Tabs.init("#tab-list", "#tab-content-wrapper");
