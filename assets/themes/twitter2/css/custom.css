@@ -14,7 +14,6 @@ body {
   background-image: url(../img/grid-18px-masked.png);
   background-repeat: repeat-x;
   background-position: 0 40px;
-  min-height: 100%;
 }
 
 /* HEADERS ======================================================== */ 
