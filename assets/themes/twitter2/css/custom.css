@@ -167,8 +167,7 @@ h3 {margin:0px 0 10px 0}
 }
 
 .divbox {
-  padding: 0.5% 35px 0.5% 14px;
-  margin-bottom: 18px;
+  padding: 0.5% 1%;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
   background-color: #FFFFFF;
   border: 1px solid #DDDDDD;
@@ -188,8 +187,11 @@ h3 {margin:0px 0 10px 0}
   font-size: 13px;
   line-height: 22px;
 }
+.thumbnails li {
+  margin: 0 0 18px 2%;
+}
 .thumbnails .span4 {
-  width: 30%;
+  width: 31.2%;
 }
 .collate_list {
   margin: 0 auto 9px 5px;
@@ -197,4 +199,31 @@ h3 {margin:0px 0 10px 0}
 
 .collate_list h2, .collate_list h3 {
   margin: 6px auto 0;
+}
+.landing .span4 {
+  width: 30%;
+}
+
+@media (max-width: 480px) {
+  .landing > [class*="span"] {
+    width: 100%;
+  }
+  .nav-right {
+    display: none !important;
+  }
+}
+@media (min-width: 480px) and (max-width: 890px) {
+  .nav-right {
+    float: left !important;
+  }
+}
+@media (min-width: 480px) and (max-width: 502px){
+  #right-divider {
+    display: none;
+  }
+}
+@media (max-width: 390px) {
+  #left-divider {
+    display: none;
+  }
 }
