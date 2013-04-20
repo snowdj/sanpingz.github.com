@@ -63,10 +63,13 @@
     <script>
       $(function(){
         //forkme.init(); 
-        // var delta = $(window).height() - $(document.body).height();
-        // if (delta>0) {
-        //   $("body").css("height", $(window).height())
-        // }
+        var delta = $(window).height() - $(document.body).height() -50;
+        if (delta>0) {
+          // $(".footer").css("margin-top", delta);
+          $(".footer").animate({
+            "margin-top": delta+"px"
+          }, "slow");
+        }
       {% if page.url == "/index.html" %}
         Tabs.init("#tab-list", "#tab-content-wrapper");
         //Pc.init();
