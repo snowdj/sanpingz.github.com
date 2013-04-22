@@ -222,28 +222,81 @@ h3 {margin:0px 0 10px 0}
   .landing > [class*="span"] {
     width: 100%;
   }
+  #left-divider {
+    display: none;
+  }
   .nav-right {
     display: none !important;
   }
+  #main {
+    padding: 0 !important;
+  }
+  #post-span {
+    width: 98% !important;
+    margin-left: 2% !important;
+  }
+
+  .content.page h1, .content.post h1, .content.splash h1, .content.landing h1 {
+    margin-left: 0 !important;
+  }
+
+  .post .thumbnails, .splash .thumbnails {
+    margin-left: 0;
+  }
+  .thumbnails .span4 {
+    width: 96% !important;
+  }
+
   #footer-first-child {
     display: none !important;
   }
   .footer {
     height: 30px !important;
   }
+
+  .container-fluid {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    width: 100%;
+  }
+  .brand {
+    margin-left: 0 !important;
+    padding-left: 4% !important;
+    padding-right: 4% !important;
+  }
+  #left-nav {
+    margin-right: 0;
+  }
+  #left-nav li a {
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+
 }
-@media (min-width: 480px) and (max-width: 890px) {
+@media (min-width: 640px) and (max-width: 890px) {
+  .sharing, #right-divider {
+    display: none !important;
+  }
+}
+@media (min-width: 480px) and (max-width: 640px) {
   .nav-right {
-    float: left !important;
+    display: none !important;
   }
 }
-@media (min-width: 480px) and (max-width: 502px){
-  #right-divider {
-    display: none;
+@media (max-width: 285px) {
+  body {
+    padding-top: 60px !important;
   }
-}
-@media (max-width: 390px) {
-  #left-divider {
-    display: none;
+  #left-nav li a {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+  .brand {
+    padding-left: 35% !important;
+    padding-bottom: 8px !important;
   }
 }

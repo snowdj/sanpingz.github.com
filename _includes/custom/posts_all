@@ -27,7 +27,7 @@ Usage:
     {% capture next_month %}{{ post.previous.date | date: "%B" }}{% endcapture %}
   
     {% if forloop.first %}
-      <dl style="margin-left:20px">
+      <dl>
     {% endif %}
 
     <dt>
