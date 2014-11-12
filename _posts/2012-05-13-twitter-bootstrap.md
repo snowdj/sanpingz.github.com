@@ -26,13 +26,12 @@ clone版本库，`git clone git@github.com:mceiba/twitter-bootstrap.git`，或�
 
 有问题可以邮件联系我！
 
-mceiba@gmail.com
 zhangsp@163.com
 
 ##关注我（**mceiba**）
 
 + <http://mceiba.com>
-+ <http://twitter.com/zhangsp>
++ <http://twitter.com/sanpingz>
 + <http://github.com/mceiba>
 
 ##版权和许可
