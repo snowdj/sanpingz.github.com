@@ -55,7 +55,7 @@
         <!--<p><a href="https://mixpanel.com/f/partner"><img src="https://mixpanel.com/site_media/images/partner/badge_light.png" alt="Real Time Web Analytics" /></a></p>-->
     </footer>
     
-    {% include sidebar.html %}
+    <!--{% include sidebar.html %}-->
     <!-- <a id="forkme" style="display:none" href="http://github.com/mceiba/mceiba.github.com"><img style="position: absolute; top: 40px; right: 0; border: 0;" src="/assets/images/forkme.png" alt="Fork me on GitHub"></a> -->
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script>window.jQuery || document.write('<script src="{{ ASSET_PATH }}/js/jquery.min.js"><\/script>')</script>
@@ -77,8 +77,8 @@
 		  var i=1;
   		$("h2").each(function(){$(this).attr("id",(i++)+"_"+$(this).text());});
   		//$("h2").attr("id", function(){ return "h2_"(i++)+"_"+this.title });
-          Toc.init('#sidebar', '#main');
-        {% endif %}
+          //Toc.init('#sidebar', '#main');
+      {% endif %}
   	  })
     </script>
     {% include JB/analytics %}
