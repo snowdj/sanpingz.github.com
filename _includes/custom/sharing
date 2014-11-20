@@ -1,4 +1,3 @@
-<!-- Baidu Button BEGIN -->
 <div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare">
     <a class="bds_tsina"></a>
     <a class="bds_renren"></a>
@@ -13,4 +12,3 @@
 <script type="text/javascript">
 	document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?cdnversion=" + new Date().getHours();
 </script>
-<!-- Baidu Button END -->

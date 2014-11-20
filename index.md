@@ -1,7 +1,7 @@
 ---
 layout: landing
-title: mceiba的个人博客
-head_title: 晨旭园
+title: 个人博客
+head_title: 岼果园
 description: |
   程序员的技术生涯
 ---
