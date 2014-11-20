@@ -10,7 +10,7 @@
     (_'_____________________________________________________________________ ______'_)
     (_.————————————————————————————————————————————————————————————————————————————._)
                                                  
-                                                                                                      
+[![Build Status](https://travis-ci.org/sanpingz/sanpingz.github.com.svg)](https://travis-ci.org/sanpingz/sanpingz.github.com)                                                                                                      
 # 个人博客
 
 博客借助Jekyll-Bootstrap和Twitter-Bootstrap搭建而成。
