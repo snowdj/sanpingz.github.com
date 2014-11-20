@@ -1,5 +1,5 @@
 ---
-layout: hello
+layout: splash
 title: "twitter-bootstrap文档翻译"
 category: photo
 tags: [bootstrap]

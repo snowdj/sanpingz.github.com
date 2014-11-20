@@ -3,9 +3,8 @@
 permalink: /:categories/:title.html
 
 exclude: [".rbenv-version", "README.md", "Rakefile", "CNAME"]
-auto: true
 markdown: rdiscount
-pygments: true
+highlighter: pygments
 
 topbar:
   #- 
@@ -14,22 +13,22 @@ topbar:
   - 
     url : '/develop/index.html'
     title : '技术之旅'
-  -
-    url : '/itnews/index.html'
-    title : '科技潮流'
-  -
-    url : '/open/index.html'
-    title : '开源项目'
+  #-
+  #  url : '/itnews/index.html'
+  #  title : '科技潮流'
+  #-
+  #  url : '/open/index.html'
+  #  title : '开源项目'
 
 # Themes are encouraged to use these universal variables 
 # so be sure to set them if your theme uses them.
 #
-title : 晨旭园
+title : '岼果园'
 author :
-  name : mceiba
+  name : sanpingz
   email : mceiba@gmail.com
-  github : mceiba
-  twitter : zhangsp
+  github : sanpingz
+  twitter : sanpingz
   feedburner : nil
 
 # The production_url is only used when full-domain names are needed
